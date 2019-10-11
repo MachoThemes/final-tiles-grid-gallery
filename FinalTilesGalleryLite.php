@@ -706,7 +706,7 @@ if ( !class_exists( 'FinalTiles_Gallery' ) ) {
             _e( 'Hey, I noticed you created a photo gallery with Final Tiles - that’s awesome! Would you mind give it a 5-star rating on WordPress to help us spread the word and boost our motivation for new featrues?', 'final-tiles-gallery-lite' );
             ?></p>
                 <p><strong><?php 
-            _e( 'Diego Imbriani<br>Founder of GreenTreeLabs', 'final-tiles-gallery' );
+            _e( 'Cristian Raiber<br>Founder of Macho Themes', 'final-tiles-gallery' );
             ?></strong></p>
                 <p>
                     <a href="https://wordpress.org/support/plugin/final-tiles-grid-gallery-lite/reviews/?filter=5#new-post" class="ftg-dismiss-review-notice ftg-review-out" target="_blank" rel="noopener"><?php 
@@ -794,10 +794,9 @@ if ( !class_exists( 'FinalTiles_Gallery' ) ) {
             
             if ( $file == $base ) {
                 $links[] = '<a href="admin.php?page=ftg-lite-gallery-admin" title="Final Tiles Grid Gallery Dashboard">Dashboard</a>';
-                $links[] = '<a href="https://www.greentreelabs.net" title="GreenTreeLabs website">GreenTreeLabs</a>';
-                $links[] = '<a href="https://twitter.com/greentreelabs" title="@GreenTreeLabs on Twitter">Twitter</a>';
-                $links[] = '<a href="https://www.facebook.com/greentreelabs" title="GreenTreeLabs on Facebook">Facebook</a>';
-                $links[] = '<a href="https://www.google.com/+GreentreelabsNetjs" title="GreenTreeLabs on Google+">Google+</a>';
+                $links[] = '<a href="https://www.machothemes.com/" title="MachoThemes website">MachoThemes</a>';
+                $links[] = '<a href="https://twitter.com/machothemes" title="@MachoThemes on Twitter">Twitter</a>';
+                $links[] = '<a href="https://www.facebook.com/machothemes" title="MachoThemes on Facebook">Facebook</a>';
             }
             
             return $links;

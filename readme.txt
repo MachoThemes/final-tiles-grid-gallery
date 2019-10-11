@@ -56,8 +56,6 @@ Final Tiles Gallery Lite is a very complete plugin but if you want the best expe
 * WooCommerce support
 * recent posts / custom posts galleries
 
-If you love the Lite version and it’s enough for your needs but you want to say “thanks!” you can always buy a [present](http://amzn.eu/5SP6qpj) ;)
-
 If you instead want to upgrade and unlock all the cool features then you can [buy a license](https://www.final-tiles-gallery.com/wordpress/pricing).
 
 The “Final” layout can’t ensure you have a justified edge at the bottom of the gallery. If you have this requirement then you can use the “Masonry” layout and use images with same height, that way you can make a justified gallery.
@@ -121,7 +119,7 @@ Currently galleries made with Envira, FooGallery, Instagram, NextGen, JetPack, M
 = How can I say thanks? =
 
 * Just recommend our plugin to your friends! or
-* Like and share our [Facebook page](https://www.facebook.com/greentreelabs "Facebook fan page")
+* Like and share our [Facebook page](https://www.facebook.com/machothemes "Facebook fan page")
 * Or buy me a [present](http://amzn.eu/5SP6qpj)
 
 

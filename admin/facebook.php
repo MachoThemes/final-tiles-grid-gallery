@@ -1,5 +1,5 @@
 <p>Support Final Tiles Grid Gallery, share on Facebook</p>
-<div class="fb-like" data-href="https://www.facebook.com/greentreelabs" data-layout="standard" data-action="recommend" data-show-faces="false" data-share="true"></div>
+<div class="fb-like" data-href="https://www.facebook.com/machothemes" data-layout="standard" data-action="recommend" data-show-faces="false" data-share="true"></div>
 
 
 <div id="fb-root"></div>
