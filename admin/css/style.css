@@ -582,7 +582,13 @@ h2.ftg-subtitle {
   border-bottom-right-radius: 6px;
   padding: 10px 10px 0 10px;
   color: #666;
+  /*display: none;*/
+}
+.collapsible li div.help span code {
   display: none;
+}
+.collapsible li div.help span.visible code {
+  display: inline-block;
 }
 .collapsible li div.help .ftg-code {
   display: block;
