@@ -134,6 +134,9 @@ Currently galleries made with Envira, FooGallery, Instagram, NextGen, JetPack, M
 
 == Changelog ==
 
+= 3.4.17 =
+* Fix and update tooltips
+
 = 3.4.16 =
 * [Enhancement] Gallery skips non existent images
 * [Enhancement] Gallery shows proper message when id doesn't exist
