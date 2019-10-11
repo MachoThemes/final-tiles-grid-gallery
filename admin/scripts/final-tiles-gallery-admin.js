@@ -920,6 +920,7 @@ var FTG = function($) {
             //$("input[type=range]").change()
             $("body").on("click", ".toggle-shortcode", function(e) {
                 e.preventDefault();
+                $(this).find('i').toggleClass('fa-eye fa-eye-slash');
                 var code = $(this).data("code");
                 $("#shortcode-" + code).toggleClass("visible");
             });

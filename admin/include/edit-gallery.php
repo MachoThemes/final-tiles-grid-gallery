@@ -798,7 +798,7 @@ function ftgSortByName($a, $b) {
                                                         <div class="ftg-code">
                                                             <a href="#" class="toggle-shortcode"
                                                                data-code="<?php print $f; ?>">
-                                                                <i class="fa fa-cog"></i>
+                                                                <i class="fa fa-eye-slash"></i>
                                                             </a>
                                                             <span id="shortcode-<?php print $f; ?>">
 										<?php _e('Shortcode attribute', 'final-tiles-grid-gallery-lite'); ?>:
