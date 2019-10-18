@@ -302,7 +302,7 @@ msgid "(time zone permitting), thanks!"
 msgstr ""
 
 #: admin/support.php:29
-msgid "Go to GreenTreeLabs support platform"
+msgid "Go to MachoThemes support platform"
 msgstr ""
 
 #: admin/tutorial.php:7

@@ -142,7 +142,7 @@ var FTG = function($) {
 
         },
         add_filter: function(value) {
-            
+
 /* Premium Code Stripped by Freemius */
 
         },
@@ -622,7 +622,7 @@ var FTG = function($) {
                 else
                     $(".js-no-hidden").show();
 
-                
+
 /* Premium Code Stripped by Freemius */
 
 
@@ -684,7 +684,7 @@ var FTG = function($) {
                     $("[data-action='remove']").show();
                 }
 
-                
+
 /* Premium Code Stripped by Freemius */
 
             });
@@ -712,7 +712,7 @@ var FTG = function($) {
                 }, 500);
             });
 
-            
+
 /* Premium Code Stripped by Freemius */
 
             $("body").on("click", "[name=click_action]", function() {
@@ -914,17 +914,18 @@ var FTG = function($) {
                 if($("#preview-" + code).length) {
                     $("#preview-" + code).text(val);
                 }
-                var shortcode = $("#shortcode-" + code + " input").val().split("=");
-                $("#shortcode-" + code + " input").val(shortcode[0] + '="' + val + '"');
+                var shortcode = $("#shortcode-" + code + " code").text().split("=");
+                $("#shortcode-" + code + " code").text(shortcode[0] + '="' + val + '"');
             });
             //$("input[type=range]").change()
             $("body").on("click", ".toggle-shortcode", function(e) {
                 e.preventDefault();
+                $(this).find('i').toggleClass('fa-eye fa-eye-slash');
                 var code = $(this).data("code");
                 $("#shortcode-" + code).toggleClass("visible");
             });
 
-            
+
 /* Premium Code Stripped by Freemius */
 
 
@@ -1088,7 +1089,7 @@ var FTGWizard = function($) {
                         } else {
                             $(".select-images").hide();
                             $("[name=enc_images]").val("");
-                            
+
 /* Premium Code Stripped by Freemius */
 
                         }
@@ -1198,9 +1199,9 @@ jQuery(function() {
             var color = ui.color.toString();
             
             if($(element).parents(".field").hasClass("js-update-shortcode")) {
-                var $input = $(element).parents(".field").find(".shortcode-val");
-                var shortcode = $input.val().split("=");
-                $input.val(shortcode[0] + '="' + color + '"');
+                var code = $(element).parents(".field").find(".shortcode-val");
+                var shortcode = $input.text().split("=");
+                $input.text(shortcode[0] + '="' + color + '"');
             }
         },
     });

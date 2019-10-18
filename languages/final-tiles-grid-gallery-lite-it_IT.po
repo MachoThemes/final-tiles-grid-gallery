@@ -32,8 +32,8 @@ msgstr ""
 "aiutarci a migliorare questo plugin motivandoci per nuove funzionalità?"
 
 #: FinalTilesGalleryLite.php:723
-msgid "Diego Imbriani<br>Founder of GreenTreeLabs"
-msgstr "Diego Imbriani<br>Fondatore di GreenTreeLabs"
+msgid "Cristian Raiber<br>Founder of MachoThemes"
+msgstr "Cristian Raiber<br>Fondatore di MachoThemes"
 
 #: FinalTilesGalleryLite.php:725
 msgid "Ok, you deserve it"
