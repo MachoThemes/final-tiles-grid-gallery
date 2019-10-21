@@ -3,7 +3,7 @@ Contributors: machothemes, silkalns
 Tags: gallery, grid gallery, best gallery plugin, free gallery, gallery plugin, gallery grid plugin, masonry, photo gallery, image gallery, social gallery, portfolio gallery, lightbox, justified gallery
 Requires at least: 3.8.2
 Tested up to: 5.2
-Stable tag: trunk
+Stable tag: 3.4.17
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
