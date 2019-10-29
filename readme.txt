@@ -3,7 +3,7 @@ Contributors: machothemes, silkalns
 Tags: gallery, grid gallery, best gallery plugin, free gallery, gallery plugin, gallery grid plugin, masonry, photo gallery, image gallery, social gallery, portfolio gallery, lightbox, justified gallery
 Requires at least: 3.8.2
 Tested up to: 5.2
-Stable tag: 3.4.17
+Stable tag: 3.4.18
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -133,6 +133,9 @@ Currently galleries made with Envira, FooGallery, Instagram, NextGen, JetPack, M
 6. 52 pages documentation
 
 == Changelog ==
+
+= 3.4.18 =
+* Added opy shortcode functionality
 
 = 3.4.17 =
 * Fix and update tooltips

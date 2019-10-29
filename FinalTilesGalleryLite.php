@@ -2,7 +2,7 @@
 /**
 * Plugin Name:              Final Tiles Grid Gallery - Image Gallery
 * Description:              Wordpress Plugin for creating responsive image galleries. 
-* Version:                  3.4.17
+* Version:                  3.4.18
 * Author:                   MachoThemes
 * Author URI:               https://www.machothemes.com
 * Tested up to:             5.2
@@ -25,7 +25,7 @@
 */
 
 
-define( "FTGVERSION", "3.4.17" );
+define( "FTGVERSION", "3.4.18" );
 // Create a helper function for easy SDK access.
 
 if ( !function_exists( "ftg_fs" ) ) {
