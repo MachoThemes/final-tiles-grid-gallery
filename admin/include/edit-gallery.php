@@ -895,9 +895,12 @@ function ftgSortByName($a, $b) {
                     </svg>
                 </div>
                 <div class="collapsible-body">
-                    <div><input readonly="" type="text" value="[FinalTilesGallery id='<?php
+                    <div>
+                        <input readonly="" type="text" value="[FinalTilesGallery id='<?php
                         print $gid;
-                        ?>']"></div>
+                        ?>']" style="max-width:200px;display:inline-block;">
+                        <a href="#" title="Click to copy shortcode" class="copy-ftg-shortcode button button-primary dashicons dashicons-format-gallery" style="width:40px; display: inline-block;"></a><span style="margin-left:15px;"></span>
+                    </div>
                     <div>
                         <button data-update-gallery class="button components-button is-primary"><?php
                             _e('Save gallery', 'final-tiles-grid-gallery-lite');

@@ -93,7 +93,8 @@
 							<?php print $gallery->source ?>
 						</td>
 						<td class="title column-title has-row-actions column-primary">
-							<span>[FinalTilesGallery id="<?php print $gallery->Id ?>"]</span>
+							<input readonly type="text" value="[FinalTilesGallery id='<?php echo $gallery->Id ?>']" style="height:30px;">
+                            <a href="#" title="Click to copy shortcode" class="copy-ftg-shortcode button button-primary dashicons dashicons-format-gallery" style="width:40px;"></a><span></span>
 						</td>
 					</tr>
 					<?php endforeach ?>
