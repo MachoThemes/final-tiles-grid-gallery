@@ -5,7 +5,7 @@
 * Version:                  3.4.18
 * Author:                   MachoThemes
 * Author URI:               https://www.machothemes.com
-* Tested up to:             5.2
+* Tested up to:             5.3
 * Requires:                 4.9 or higher
 * License:                  GPLv3 or later
 * License URI:              http://www.gnu.org/licenses/gpl-3.0.html
