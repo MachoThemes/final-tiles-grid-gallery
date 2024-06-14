@@ -188,19 +188,19 @@ if(! class_exists('FinalTilesDB'))
 					$image->group = "";
 
 				$data = array( 'gid' => $gid,
-				               'imagePath' => $image->imagePath,
-				               'description' => isset($image->description) ? $image->description : "",
-				               'imageId' => $image->imageId,
-											 'group' => $image->group,
-											 'link' => $image->link,
-											 'alt' => $image->alt,
-											 'target' => $image->target,
-				               'title' => isset($image->title) ? $image->title : "", 'sortOrder' => 0 );
+				               'imagePath' => esc_url_raw($image->imagePath),
+				               'description' => isset($image->description) ? sanitize_text_field($image->description) : "",
+				               'imageId' => absint($image->imageId),
+											 'group' => sanitize_text_field($image->group),
+											 'link' => esc_url_raw($image->link),
+											 'alt' => sanitize_text_field($image->alt),
+											 'target' => sanitize_text_field($image->target),
+				               'title' => isset($image->title) ? sanitize_text_field($image->title ): "", 'sortOrder' => 0 );
 
 				if(isset($image->filters))
-					$data['filters'] = $image->filters;
+					$data['filters'] = sanitize_text_field($image->filters);
 
-				$data['type'] = isset($image->type) ? $image->type : 'image';
+				$data['type'] = isset($image->type) ? sanitize_text_field($image->type): 'image';
 
 				$imageAdded = $wpdb->insert( $tb_i, $data );
 				$id = $wpdb->insert_id;

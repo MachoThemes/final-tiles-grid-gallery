@@ -21,9 +21,9 @@
 		{
 			return {
 				longname : 'Final Tiles Gallery',
-				author : 'Macho Themes',
-				authorurl : 'https://www.machothemes.com/',
-				infourl : 'https://www.machothemes.com/',
+				author : 'MachoThemes',
+				authorurl : 'https://machothemes.com',
+				infourl : 'https://machothemes.com',
 				version : tinymce.majorVersion + "." + tinymce.minorVersion
 			};
 		}

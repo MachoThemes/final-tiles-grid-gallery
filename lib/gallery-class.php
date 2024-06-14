@@ -1,24 +1,32 @@
 <?php
 
 if ( !class_exists( "FinalTilesGallery" ) ) {
-    class FinalTilesGallery
-    {
-        public $gallery ;
-        private  $defaultValues ;
+    class FinalTilesGallery {
+        public $loaded;
+
+        private $defaultValues;
+
+        public $id;
+
+        public $gallery;
+
+        public $db;
+
+        public $images;
+
         public function __construct(
             $galleryId,
             $db,
             $defaultValues,
             $attrs
-        )
-        {
+        ) {
             $this->id = $galleryId;
-            $this->defaultValues = $defaultValues;            
+            $this->defaultValues = $defaultValues;
+            $this->gallery = null;
             $this->db = $db;
             $this->images = array();
-            $this->gallery = $this->getGallery();
-
-            if ( !$this->gallery ) {
+            $this->loaded = $this->getGallery();
+            if ( !$this->loaded ) {
                 return;
             }
             foreach ( $attrs as $k => $v ) {
@@ -37,8 +45,7 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
                     break;
                 case "posts":
                     $this->getPosts();
-                    
-                    if ( isset( $this->gallery->taxonomyAsFilter ) && !empty($this->gallery->taxonomyAsFilter) ) {
+                    if ( isset( $this->gallery->taxonomyAsFilter ) && !empty( $this->gallery->taxonomyAsFilter ) ) {
                         $this->gallery->filters = array();
                         foreach ( $this->images as $image ) {
                             foreach ( explode( "|", $image->filters ) as $f ) {
@@ -49,7 +56,6 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
                         }
                         $this->gallery->filters = implode( "|", $this->gallery->filters );
                     }
-                    
                     break;
                 case "woocommerce":
                     break;
@@ -81,76 +87,199 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
                 );
             }
             foreach ( $this->images as &$image ) {
-                
                 if ( isset( $image->imageId ) && isset( $metaData['att' . $image->imageId] ) ) {
                     $meta = $metaData['att' . $image->imageId];
                     $sizes = FinalTiles_Gallery::get_image_size_links( $image->imageId );
                     $search = array_search( $image->imagePath, $sizes );
-                    
                     if ( $search ) {
                         $size = explode( "x", $search );
                     } else {
                         $md = wp_get_attachment_metadata( $image->imageId );
-                        $size = array( $md["width"], $md["height"] );
+                        $size = array($md["width"], $md["height"]);
                     }
-                    
                     $image->width = $size[0];
                     $image->height = $size[1];
                     $image->url = $meta['url'];
                     $image->page = $meta['page'];
                     $image->original = $meta['original'];
-                    if ( !isset( $image->alt ) || empty($image->alt) ) {
+                    if ( !isset( $image->alt ) || empty( $image->alt ) ) {
                         $image->alt = $meta['alt'];
                     }
                 }
-            
             }
+            add_action( 'wp_footer', array($this, 'add_gallery_js'), 99 );
         }
-        
-        var  $cssPrefixes = array(
+
+        public function add_gallery_js() {
+            $rid = $this->id;
+            $gallery = $this->gallery;
+            $lightbox = ( wp_is_mobile() ? ( $gallery->mobileLightbox == "desktop" ? $gallery->lightbox : $gallery->mobileLightbox ) : $gallery->lightbox );
+            $javascript = "<script type='text/javascript'>\n";
+            if ( $lightbox != 'lightgallery' ) {
+                $javascript .= "jQuery('#ftg-" . absint( $this->id . $rid ) . " img.item').removeAttr('src');\n";
+            }
+            $javascript .= "jQuery(document).ready(function () {\n";
+            $javascript .= "setTimeout(function () {\n";
+            $javascript .= "\tjQuery('#ftg-" . absint( $this->id . $rid ) . "').finalTilesGallery({\n";
+            $javascript .= "\t\tminTileWidth: " . esc_attr( $gallery->minTileWidth ) . ",\n";
+            if ( strlen( $gallery->script ) ) {
+                $javascript .= "\t\tonComplete: function () { " . stripslashes( strip_tags( $gallery->script ) ) . "},\n";
+            }
+            $javascript .= "\t\tmargin: " . esc_attr( $gallery->margin ) . ",\n";
+            $jsLoadMethod = $gallery->loadMethod;
+            if ( $gallery->loadMethod == 'trueLazy' ) {
+                $jsLoadMethod = 'lazy';
+            }
+            $javascript .= "\t\tloadMethod: '" . esc_attr( $jsLoadMethod ) . "',\n";
+            if ( $gallery->ajaxLoading == 'T' ) {
+                $javascript .= "\t\tautoLoadURL: '" . admin_url( 'admin-ajax.php' ) . "',\n";
+                $javascript .= "\t\tpageSize: " . esc_attr( $gallery->tilesPerPage ) . ",\n";
+            }
+            $javascript .= "\t\tnonce: '" . wp_create_nonce( 'finaltilesgallery' ) . "',\n";
+            $javascript .= "\t\tgalleryId: '" . absint( $this->id ) . "',\n";
+            $javascript .= "\t\tsetupFilters: " . (( $gallery->filterClick == 'F' ? "true" : "false" )) . ",\n";
+            $javascript .= "\t\tlayout: '" . esc_attr( $gallery->layout ) . "',\n";
+            $javascript .= "\t\tdebug: " . (( empty( $_GET['debug'] ) ? "false" : "true" )) . ",\n";
+            $javascript .= "\t\tgridSize: " . esc_attr( $gallery->gridCellSize ) . ",\n";
+            $javascript .= "\t\tdisableGridSizeBelow:" . esc_attr( $gallery->gridCellSizeDisabledBelow ) . ",\n";
+            $javascript .= "\t\tallowEnlargement: " . (( $gallery->enlargeImages == "T" ? "true" : "false" )) . ",\n";
+            if ( $gallery->layout == "columns" ) {
+                $javascript .= "\t\tcolumns: [\n" . "\t\t\t[4000, " . esc_attr( $gallery->columns ) . "],\n" . "\t\t\t[1024, " . esc_attr( $gallery->columnsTabletLandscape ) . "],\n" . "\t\t\t[800, " . esc_attr( $gallery->columnsTabletPortrait ) . "],\n" . "\t\t\t[480, " . esc_attr( $gallery->columnsPhoneLandscape ) . "],\n" . "\t\t\t[320, " . esc_attr( $gallery->columnsPhonePortrait ) . "]\n" . "\t\t],";
+            } else {
+                $javascript .= "\t\timageSizeFactor: [\n" . "\t\t\t [4000, " . absint( $gallery->imageSizeFactor ) / 100 . "]\n" . "\t\t\t,[1024, " . absint( $gallery->imageSizeFactorTabletLandscape ) / 100 . "]\n" . "\t\t\t,[768, " . absint( $gallery->imageSizeFactorTabletPortrait ) / 100 . "]\n" . "\t\t\t,[640, " . absint( $gallery->imageSizeFactorPhoneLandscape ) / 100 . "]\n" . "\t\t\t,[320, " . absint( $gallery->imageSizeFactorPhonePortrait ) / 100 . "]\n";
+                foreach ( explode( "|", $gallery->imageSizeFactorCustom ) as $isf ) {
+                    $_ = explode( ",", $isf );
+                    if ( !empty( $_[0] ) ) {
+                        $javascript .= "\t\t\t,[" . esc_attr( $_[0] ) . ", " . absint( $_[1] ) / 100 . "]\n";
+                    }
+                }
+                $javascript .= "\t\t],\n";
+            }
+            if ( isset( $scrollEffect ) ) {
+                $javascript .= "\t\tscrollEffect: '" . esc_attr( $gallery->scrollEffect ) . "',\n";
+            }
+            $javascript .= "\t\tselectedFilter: '" . $this->slugify( $gallery->defaultFilter ) . "'\n";
+            $javascript .= "\t});\n";
+            $javascript .= "\tjQuery(function () {\n";
+            //$javascript .= "\t\tjQuery('#ftg-$this->id$rid .tile > a').unbind('click');\n";
+            if ( $gallery->disableLightboxGroups == 'T' ) {
+                if ( $lightbox == "prettyphoto" || $lightbox == "fancybox" || $lightbox == "swipebox" || $lightbox == "lightbox2" ) {
+                    $javascript .= "jQuery('#ftg-" . absint( $this->id . $rid ) . " .tile a.ftg-lightbox').each(function (i) { jQuery(this).attr('rel', 'no-group-' + i);});\n";
+                }
+                if ( $lightbox == "lightbox2" ) {
+                    $javascript .= "jQuery('#ftg-" . absint( $this->id . $rid ) . " .tile a.ftg-lightbox').each(function (i) { jQuery(this).attr('data-lightbox', 'no-group-' + i);});\n";
+                }
+            }
+            $javascript .= "\t(function () {\n";
+            /*if(wp_is_mobile())
+            		{
+            			$javascript .= "\t\tjQuery('#ftg-$this->id$rid .tile').on('touchstart', function (e) {\n";
+            			$javascript .= "\t\t\tjQuery(this).addClass('hover');\n";
+            			$javascript .= "\t\t});\n";
+            		}*/
+            $javascript .= "\t\tvar rel = '';\n";
+            $javascript .= "\t\tjQuery('#ftg-" . absint( $this->id . $rid ) . " .ftg-lightbox').click(function (e) {\n";
+            $javascript .= "\t\t\trel = jQuery(this).attr('rel');\n";
+            $javascript .= "\t\t\tjQuery('#ftg-" . absint( $this->id . $rid ) . " .ftg-current').removeClass('ftg-current');\n";
+            $javascript .= "\t\t\tjQuery('#ftg-" . absint( $this->id . $rid ) . " [rel=\"'+rel+'\"]').addClass('ftg-current');\n";
+            $javascript .= "\t\t});\n";
+            $javascript .= "\t})();\n";
+            $lightbox_options = ( wp_is_mobile() ? $gallery->lightboxOptionsMobile : $gallery->lightboxOptions );
+            switch ( $lightbox ) {
+                case 'magnific':
+                    $javascript .= "\t\tjQuery('#ftg-" . absint( $this->id . $rid ) . "').magnificPopup({type:'image', zoom: {\n";
+                    $javascript .= "\t\t\tenabled: true, duration: 300, easing: 'ease-in-out' },\n";
+                    $javascript .= "\t\t\timage: { titleSrc: 'data-title' }, gallery: { enabled: " . (( $gallery->disableLightboxGroups == 'T' ? "false" : "true" )) . " }, delegate: '.tile:not(.ftg-filter-hidden-tile) .ftg-lightbox.ftg-current',\n";
+                    $javascript .= stripslashes( $lightbox_options );
+                    $javascript .= "\t\t});\n";
+                    $javascript .= "\t\tjQuery('#ftg-" . absint( $this->id . $rid ) . " .ftg-lightbox-iframe').magnificPopup({type:'iframe',";
+                    $javascript .= stripslashes( $lightbox_options );
+                    $javascript .= "});\n";
+                    break;
+                case 'prettyphoto':
+                    $javascript .= "\t\tjQuery('#ftg-" . absint( $this->id . $rid ) . " .tile a.ftg-lightbox').prettyPhoto({";
+                    $javascript .= "});\n";
+                    break;
+                case 'colorbox':
+                    $javascript .= "\t\tjQuery('#ftg-" . absint( $this->id . $rid ) . " .tile a.ftg-lightbox').colorbox({";
+                    $javascript .= "rel: '" . (( $gallery->disableLightboxGroups == 'T' ? "nofollow" : absint( $this->id ) )) . "',";
+                    $javascript .= "title: function () { return jQuery(this).data('title'); }});\n";
+                    $javascript .= "\t\tjQuery('#ftg-" . absint( $this->id . $rid ) . " .tile a.ftg-lightbox-iframe').colorbox({ iframe:true, width:'75%', height:'75%' });\n";
+                    break;
+                case 'fancybox':
+                    $javascript .= "\t\tjQuery('#ftg-" . absint( $this->id . $rid ) . " .tile a.ftg-lightbox').fancybox();\n";
+                    break;
+                case 'swipebox':
+                    $javascript .= "\t\tjQuery('#ftg-" . absint( $this->id . $rid ) . " .tile a.ftg-lightbox').swipebox({ removeBarsOnMobile: false});\n";
+                    break;
+                case 'lightgallery':
+                    $javascript .= "\t\tjQuery('#ftg-" . absint( $this->id . $rid ) . "').lightGallery({\n\t\t\tselector: '.tile:not(.ftg-hidden) .ftg-lightbox',\n";
+                    if ( $gallery->disableLightboxGroups == 'T' ) {
+                        $javascript .= "\t\t\tthumbnail: false,\n";
+                        $javascript .= "\t\t\tcontrols: false,\n";
+                        $javascript .= "\t\t\tcounter: false,\n";
+                        $javascript .= "\t\t\tautoplayControls: false,\n";
+                        $javascript .= "\t\t\tenableDrag: false,\n";
+                        $javascript .= "\t\t\tmousewheel: false,\n";
+                        $javascript .= "\t\t\tkeyPress: false,\n";
+                        $javascript .= "\t\t\tescKey: true,\n";
+                    }
+                    $javascript .= "\t\t\tdummy: false,\n";
+                    $javascript .= stripslashes( $lightbox_options );
+                    $javascript .= "\t\t});\n";
+                case 'lightbox2':
+                    break;
+            }
+            $javascript .= "\n";
+            $javascript .= "\t});\n";
+            $javascript .= "\t}, " . esc_attr( $gallery->delay ) . ");\n";
+            $javascript .= "\t});\n";
+            $javascript .= "</script>";
+            echo $javascript;
+        }
+
+        var $cssPrefixes = array(
             "-moz-",
             "-webkit-",
             "-o-",
             "-ms-",
             ""
-        ) ;
-        private function getLink( $image )
-        {
-            if ( !empty($image->link) ) {
-                return "href='" . $image->link . "'";
+        );
+
+        private function getLink( $image ) {
+            if ( !empty( $image->link ) ) {
+                return "href='" . esc_url( $image->link ) . "'";
             }
             $l = ( wp_is_mobile() ? $this->gallery->mobileLightbox : $this->gallery->lightbox );
             $l = trim( $l );
-            if ( $l == "nolink" || empty($l) ) {
+            if ( $l == "nolink" || empty( $l ) ) {
                 return '';
             }
             switch ( trim( $l ) ) {
                 case 'attachment-page':
-                    return "href='" . $image->page . "'";
+                    return "href='" . esc_url( $image->page ) . "'";
                 case '':
                 case 'nolink':
                     return '';
             }
             $url = ( isset( $image->url ) ? $image->url : "" );
-            return "href='" . $url . "'";
+            return "href='" . esc_url( $url ) . "'";
         }
-        
-        private function getTarget( $image )
-        {
-            if ( !empty($image->target) && $image->target == '_lightbox' ) {
+
+        private function getTarget( $image ) {
+            if ( !empty( $image->target ) && $image->target == '_lightbox' ) {
                 return '';
             }
-            if ( !empty($image->target) ) {
-                return "target='" . $image->target . "'";
+            if ( !empty( $image->target ) ) {
+                return "target='" . esc_attr( $image->target ) . "'";
             }
             if ( $this->gallery->blank == 'T' ) {
                 return "target='_blank'";
             }
             return '';
         }
-        
-        private function isVideoLink( $url )
-        {
+
+        private function isVideoLink( $url ) {
             $res = array();
             preg_match( "/https?:\\/\\/(?:www\\.)?vimeo\\.com\\/\\d{6}/", $url, $res );
             if ( count( $res ) > 0 ) {
@@ -162,12 +291,10 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
             }
             return false;
         }
-        
-        private function getLightboxClass( $image )
-        {
+
+        private function getLightboxClass( $image ) {
             $l = ( wp_is_mobile() ? $this->gallery->mobileLightbox : $this->gallery->lightbox );
-            
-            if ( !empty($image->target) && $image->target == '_lightbox' && !empty($image->link) ) {
+            if ( !empty( $image->target ) && $image->target == '_lightbox' && !empty( $image->link ) ) {
                 if ( $l == 'magnific' || $l == 'colorbox' ) {
                     return "ftg-lightbox-iframe";
                 }
@@ -181,32 +308,29 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
                     return 'ftg-lightbox everlightbox-trigger';
                 }
             }
-            
-            if ( !empty($image->link) && !$this->isVideoLink( $image->link ) ) {
+            if ( !empty( $image->link ) && !$this->isVideoLink( $image->link ) ) {
                 return '';
             }
-            if ( empty($l) ) {
+            if ( empty( $l ) ) {
                 return '';
             }
             if ( $l == 'nolink' ) {
                 return '';
             }
-            if ( $l == 'magnific' && !empty($image->link) ) {
+            if ( $l == 'magnific' && !empty( $image->link ) ) {
                 return 'ftg-lightbox mfp-iframe';
             }
             return 'ftg-lightbox';
         }
-        
-        private function getdef( $value, $default )
-        {
-            if ( $value == NULL || empty($value) ) {
+
+        private function getdef( $value, $default ) {
+            if ( $value == NULL || empty( $value ) ) {
                 return $default;
             }
             return $value;
         }
-        
-        private function toRGB( $Hex )
-        {
+
+        private function toRGB( $Hex ) {
             if ( substr( $Hex, 0, 1 ) == "#" ) {
                 $Hex = substr( $Hex, 1 );
             }
@@ -224,9 +348,8 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
             $RGB[2] = $B;
             return $RGB;
         }
-        
-        public static function slugify( $text )
-        {
+
+        public static function slugify( $text ) {
             $text = preg_replace( '~[^\\pL\\d]+~u', '-', $text );
             $text = trim( $text, '-' );
             if ( function_exists( "iconv" ) ) {
@@ -234,37 +357,31 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
             }
             $text = strtolower( $text );
             $text = preg_replace( '~[^-\\w]+~', '', $text );
-            if ( empty($text) ) {
+            if ( empty( $text ) ) {
                 return 'n-a';
             }
             return $text;
         }
-        
-        public function getFilters()
-        {
+
+        public function getFilters() {
             return "";
         }
-        
-        public function getImageFilters( $image )
-        {
+
+        public function getImageFilters( $image ) {
             return "";
         }
-        
-        private function hasSocial()
-        {
-            return $this->gallery->enableFacebook == "T" || $this->gallery->enableTwitter == "T" || $this->gallery->enablePinterest == "T" || $this->gallery->enableGplus == "T";
+
+        private function hasSocial() {
+            return $this->gallery->enableFacebook == "T" || $this->gallery->enableTwitter == "T" || $this->gallery->enablePinterest == "T";
         }
-        
-        public function useCaptions()
-        {
-            
+
+        public function useCaptions() {
             if ( $this->gallery->source == "images" ) {
-                if ( empty($this->gallery->wp_field_caption) ) {
+                if ( empty( $this->gallery->wp_field_caption ) ) {
                     return true;
                 }
                 return $this->gallery->wp_field_caption != 'none' || $this->gallery->wp_field_title != 'none';
             }
-            
             if ( $this->gallery->source == "posts" ) {
                 return $this->gallery->recentPostsCaption != 'none';
             }
@@ -273,40 +390,35 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
             }
             return false;
         }
-        
-        public function cssRuleRotation( $prefix )
-        {
+
+        public function cssRuleRotation( $prefix ) {
             if ( $this->gallery->hoverRotation == 0 ) {
                 return "";
             }
-            return $prefix . "rotate(" . $this->gallery->hoverRotation . "deg) ";
+            return $prefix . "rotate(" . absint( $this->gallery->hoverRotation ) . "deg) ";
         }
-        
-        public function cssRuleZoom( $prefix )
-        {
+
+        public function cssRuleZoom( $prefix ) {
             if ( $this->gallery->hoverZoom == 100 || $this->gallery->hoverZoom == 0 ) {
                 return "";
             }
-            return $prefix . "scale(" . $this->gallery->hoverZoom / 100 . ") ";
+            return $prefix . "scale(" . absint( $this->gallery->hoverZoom ) / 100 . ") ";
         }
-        
-        private function hasCaptionIcon()
-        {
-            return !(empty($this->gallery->captionIcon) && empty($this->gallery->customCaptionIcon));
+
+        private function hasCaptionIcon() {
+            return !(empty( $this->gallery->captionIcon ) && empty( $this->gallery->customCaptionIcon ));
         }
-        
-        private function getCaptionIcon()
-        {
-            if ( !empty($this->gallery->customCaptionIcon) ) {
+
+        private function getCaptionIcon() {
+            if ( !empty( $this->gallery->customCaptionIcon ) ) {
                 return substr( $this->gallery->customCaptionIcon, 3 );
             }
             return $this->gallery->captionIcon;
         }
-        
-        public function render()
-        {
-            if ( !$this->gallery ) {
-                return "<pre style='font-size:10px'>Final Tiles Gallery id=" . $this->id . " does not exist</pre>";
+
+        public function render() {
+            if ( !$this->loaded ) {
+                return "<pre style='font-size:10px'>Final Tiles Gallery id=" . esc_attr( $this->id ) . " does not exist</pre>";
             }
             $rid = $this->id;
             $gallery = $this->gallery;
@@ -326,60 +438,60 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
             $captionHorizontal = null;
             $html .= "<style>\n";
             if ( $gallery->borderSize ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile { border: " . $gallery->borderSize . "px solid " . $gallery->borderColor . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile { border: " . absint( $gallery->borderSize ) . "px solid " . esc_attr( $gallery->borderColor ) . "; }\n";
             }
             if ( $gallery->captionIconColor ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile .icon { color:" . $gallery->captionIconColor . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .icon { color:" . esc_attr( $gallery->captionIconColor ) . "; }\n";
             }
             if ( $gallery->loadingBarColor ) {
-                $html .= "#ftg-{$this->id}{$rid} .ftg-items .loading-bar i { background:" . $gallery->loadingBarColor . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .ftg-items .loading-bar i { background:" . esc_attr( $gallery->loadingBarColor ) . "; }\n";
             }
             if ( $gallery->loadingBarBackgroundColor ) {
-                $html .= "#ftg-{$this->id}{$rid} .ftg-items .loading-bar { background:" . $gallery->loadingBarBackgroundColor . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .ftg-items .loading-bar { background:" . esc_attr( $gallery->loadingBarBackgroundColor ) . "; }\n";
             }
-            
             if ( $gallery->captionIconSize ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile .icon { font-size:" . $gallery->captionIconSize . "px; }\n";
-                $html .= "#ftg-{$this->id}{$rid} .tile .icon { margin: -" . $gallery->captionIconSize / 2 . "px 0 0 -" . $gallery->captionIconSize / 2 . "px; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .icon { font-size:" . absint( $gallery->captionIconSize ) . "px; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .icon { margin: -" . absint( $gallery->captionIconSize ) / 2 . "px 0 0 -" . absint( $gallery->captionIconSize ) / 2 . "px; }\n";
             }
-            
             if ( $gallery->captionFontSize ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile .caption-block .text-wrapper span.text { font-size:" . $gallery->captionFontSize . "px; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .caption-block .text-wrapper span.text { font-size:" . absint( $gallery->captionFontSize ) . "px; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .caption-outside .text-wrapper span.text { font-size:" . absint( $gallery->captionFontSize ) . "px; }\n";
             }
             if ( $gallery->titleFontSize ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile .caption-block .text-wrapper span.title { font-size:" . $gallery->titleFontSize . "px; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .caption-block .text-wrapper span.title { font-size:" . absint( $gallery->titleFontSize ) . "px; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .caption-outside .text-wrapper span.title { font-size:" . absint( $gallery->titleFontSize ) . "px; }\n";
             }
             if ( $gallery->backgroundColor ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile { background-color: " . $gallery->backgroundColor . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile { background-color: " . esc_attr( $gallery->backgroundColor ) . "; }\n";
             }
-            
             if ( $gallery->captionColor ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile .caption-block .text-wrapper span.text { color: " . $gallery->captionColor . "; }\n";
-                $html .= "#ftg-{$this->id}{$rid} .tile .caption-block .text-wrapper span.title { color: " . $gallery->captionColor . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .caption-block .text-wrapper span.text { color: " . esc_attr( $gallery->captionColor ) . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .caption-block .text-wrapper span.title { color: " . esc_attr( $gallery->captionColor ) . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .caption-outside .text-wrapper span.text { color: " . esc_attr( $gallery->captionColor ) . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .caption-outside .text-wrapper span.title { color: " . esc_attr( $gallery->captionColor ) . "; }\n";
             }
-            
             if ( $gallery->socialIconColor ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile .ftg-social a { color: " . $gallery->socialIconColor . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .ftg-social a { color: " . esc_attr( $gallery->socialIconColor ) . "; }\n";
             }
             if ( $gallery->borderRadius ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile { border-radius: " . $gallery->borderRadius . "px; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile { border-radius: " . absint( $gallery->borderRadius ) . "px; }\n";
             }
             if ( $gallery->shadowSize ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile { box-shadow: " . $gallery->shadowColor . " 0px 0px " . $gallery->shadowSize . "px; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile { box-shadow: " . esc_attr( $gallery->shadowColor ) . " 0px 0px " . absint( $gallery->shadowSize ) . "px; }\n";
             }
             if ( $gallery->captionEasing ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile .caption-block { transition-timing-function:" . $gallery->captionEasing . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .caption-block { transition-timing-function:" . esc_attr( $gallery->captionEasing ) . "; }\n";
             }
             if ( $gallery->captionEffectDuration ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile .caption-block { transition-duration:" . $gallery->captionEffectDuration / 1000 . "s; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .caption-block { transition-duration:" . absint( $gallery->captionEffectDuration ) / 1000 . "s; }\n";
             }
-            $html .= "#ftg-{$this->id}{$rid} .tile .tile-inner:before { background-color: {$gallery->captionBackgroundColor}; }\n";
-            $html .= "#ftg-{$this->id}{$rid} .tile .tile-inner:before { background-color: rgba({$bgCaption[0]}, {$bgCaption[1]}, {$bgCaption[2]}, " . $gallery->captionOpacity / 100 . "); }\n";
+            $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .tile-inner:before { background-color: " . esc_attr( $gallery->captionBackgroundColor ) . "; }\n";
+            $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .tile-inner:before { background-color: rgba(" . absint( $bgCaption[0] ) . ', ' . absint( $bgCaption[1] ) . ', ' . absint( $bgCaption[2] ) . ', ' . absint( $gallery->captionOpacity ) / 100 . "); }\n";
             if ( $gallery->captionBehavior == "flip-h" ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile .tile-inner .caption-block { background-color: rgba({$bgCaption[0]}, {$bgCaption[1]}, {$bgCaption[2]}, " . $gallery->captionOpacity / 100 . "); }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .tile-inner .caption-block { background-color: rgba(" . absint( $bgCaption[0] ) . ', ' . absint( $bgCaption[1] ) . ', ' . absint( $bgCaption[2] ) . ', ' . absint( $gallery->captionOpacity ) / 100 . "); }\n";
             }
             if ( $gallery->captionFrame == 'T' && $gallery->captionFrameColor ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile .caption-block.frame .text { border-color: " . $gallery->captionFrameColor . "; }\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .caption-block, #ftg-" . absint( $this->id . $rid ) . " .tile .caption-outside { border-color: " . esc_attr( $gallery->captionFrameColor ) . "; }\n";
             }
             $loadedEasing = $gallery->loadedEasing;
             if ( $gallery->loadedEasing == "ease-out-back" ) {
@@ -394,49 +506,55 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
             if ( $gallery->loadedEasing == "elastic-out" ) {
                 $loadedEasing = "cubic-bezier(.26,1.9,.4,.67)";
             }
-            
             if ( $gallery->hoverZoom != 100 || $gallery->hoverRotation != 0 ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile:hover img {\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile:hover img {\n";
                 foreach ( $this->cssPrefixes as $prefix ) {
                     $html .= "\t" . $prefix . "transform: " . $this->cssRuleRotation( $prefix ) . $this->cssRuleZoom( $prefix ) . ";\n";
                 }
                 $html .= "}\n";
             }
-            
-            
             if ( $gallery->hoverIconRotation == 'T' ) {
-                $html .= "#ftg-{$this->id}{$rid} .tile .icon {\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile .icon {\n";
                 foreach ( $this->cssPrefixes as $prefix ) {
-                    $html .= "\t" . $prefix . "transition: all .5s;\n";
+                    $html .= "\t" . esc_attr( $prefix ) . "transition: all .5s;\n";
                 }
                 $html .= "}\n";
-                $html .= "#ftg-{$this->id}{$rid} .tile:hover .icon {\n";
+                $html .= "#ftg-" . absint( $this->id . $rid ) . " .tile:hover .icon {\n";
                 foreach ( $this->cssPrefixes as $prefix ) {
-                    $html .= "\t" . $prefix . "transform: rotate(360deg);\n";
+                    $html .= "\t" . esc_attr( $prefix ) . "transform: rotate(360deg);\n";
                 }
                 $html .= "}\n";
             }
-            
-            if ( !empty($gallery->style) ) {
+            if ( !empty( $gallery->style ) ) {
                 $html .= stripslashes( $gallery->style );
             }
             $html .= "</style>\n";
             $filtersSlugs = array_map( "FinalTilesGallery::slugify", explode( '|', $gallery->filters ) );
-            $current_filter = ( isset( $_GET['ftg-set'] ) ? $_GET['ftg-set'] : null );
+            $current_filter = ( isset( $_GET['ftg-set'] ) ? sanitize_text_field( wp_unslash( $_GET['ftg-set'] ) ) : null );
             if ( $gallery->captionMobileBehavior == "desktop" ) {
                 $gallery->captionMobileBehavior = $gallery->captionBehavior;
             }
-            $captionBehavior = ( wp_is_mobile() ? $gallery->captionMobileBehavior : $gallery->captionBehavior );
-            $hover = ( $captionBehavior == "never" ? "" : "ftg-hover-enabled" );
-            if ( $captionBehavior != "none" && !ftg_fs()->is_plan_or_trial( 'ultimate' ) ) {
+            $captionBehavior = $gallery->captionBehavior;
+            $hover = ( $gallery->captionBehavior == "never" ? "" : "ftg-hover-enabled" );
+            if ( $gallery->captionMobileBehavior && wp_is_mobile() ) {
+                if ( 'none' == $gallery->captionMobileBehavior ) {
+                    $hover = "";
+                }
+                $captionBehavior = esc_attr( $gallery->captionMobileBehavior );
+            }
+            if ( $gallery->captionBehavior != "none" && !ftg_fs()->is_plan_or_trial( 'ultimate' ) ) {
                 $captionBehavior = "none";
             }
             $socialClasses = "";
             if ( $this->hasSocial() ) {
-                $socialClasses .= "social-icons-" . $gallery->socialIconPosition . " social-icons-" . $gallery->socialIconStyle;
+                $socialClasses .= "social-icons-" . esc_attr( $gallery->socialIconPosition ) . " social-icons-" . esc_attr( $gallery->socialIconStyle );
             }
-            $html .= "<a name='{$this->id}'></a>";
-            $html .= "<div class='final-tiles-gallery {$socialClasses} {$hover} " . (( $gallery->captionFrame == 'T' ? "caption-frame" : "" )) . " caption-{$captionBehavior} caption-{$gallery->captionVerticalAlignment} caption-{$gallery->captionHorizontalAlignment}' id='ftg-{$this->id}{$rid}' style='width:{$gallery->width}'>\n";
+            $captionClasses = '';
+            if ( isset( $gallery->captionPosition ) ) {
+                $captionClasses = 'caption-' . esc_attr( $gallery->captionPosition );
+            }
+            $html .= '<a name="' . esc_attr( $this->id ) . '"></a>';
+            $html .= '<div class="final-tiles-gallery ' . esc_attr( $socialClasses . ' ' . $hover . ' ' . $captionClasses . ' ' ) . (( $gallery->captionFrame == 'T' ? "caption-frame" : "" )) . ' caption-' . esc_attr( $captionBehavior ) . ' caption-' . esc_attr( $gallery->captionVerticalAlignment ) . ' caption-' . esc_attr( $gallery->captionHorizontalAlignment ) . '" id="ftg-' . absint( $this->id . $rid ) . '" style="width: ' . esc_attr( $gallery->width ) . "\">\n";
             if ( strlen( $gallery->filters ) ) {
             }
             $html .= "<div class='ftg-items'>\n";
@@ -448,160 +566,31 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
             $html .= $this->images_markup();
             $html .= "</div>\n";
             if ( $gallery->support == 'T' ) {
-                $html .= "<div class='support-text'><a target='_blank' href='https://www.final-tiles-gallery.com/wordpress'>" . $gallery->supportText . "</a></div>";
+                $html .= "<div class='support-text'><a target='_blank' href='https://www.final-tiles-gallery.com/wordpress'>" . esc_html( $gallery->supportText ) . "</a></div>";
             }
             $html .= "</div>\n";
-            $html .= "<script type='text/javascript'>\n";
-            if ( $lightbox != 'lightgallery' ) {
-                $html .= "jQuery('#ftg-{$this->id}{$rid} img.item').removeAttr('src');\n";
-            }
-            $html .= "jQuery(document).ready(function () {\n";
-            $html .= "setTimeout(function () {\n";
-            $html .= "\tjQuery('#ftg-{$this->id}{$rid}').finalTilesGallery({\n";
-            $html .= "\t\tminTileWidth: {$gallery->minTileWidth},\n";
-            if ( strlen( $gallery->script ) ) {
-                $html .= "\t\tonComplete: function () { " . stripslashes( $gallery->script ) . "},\n";
-            }
-            $html .= "\t\tmargin: {$gallery->margin},\n";
-            $jsLoadMethod = $gallery->loadMethod;
-            if ( $gallery->loadMethod == 'trueLazy' ) {
-                $jsLoadMethod = 'lazy';
-            }
-            $html .= "\t\tloadMethod: '{$jsLoadMethod}',\n";
-            
-            if ( $gallery->ajaxLoading == 'T' ) {
-                $html .= "\t\tautoLoadURL: '" . admin_url( 'admin-ajax.php' ) . "',\n";
-                $html .= "\t\tpageSize: {$gallery->tilesPerPage},\n";
-            }
-            
-            $html .= "\t\tnonce: '" . wp_create_nonce( 'finaltilesgallery' ) . "',\n";
-            $html .= "\t\tgalleryId: '{$this->id}',\n";
-            $html .= "\t\tsetupFilters: " . (( $gallery->filterClick == 'F' ? "true" : "false" )) . ",\n";
-            $html .= "\t\tlayout: '{$gallery->layout}',\n";
-            $html .= "\t\tdebug: " . (( empty($_GET['debug']) ? "false" : "true" )) . ",\n";
-            $html .= "\t\tgridSize: {$gallery->gridCellSize},\n";
-            $html .= "\t\tdisableGridSizeBelow: {$gallery->gridCellSizeDisabledBelow},\n";
-            $html .= "\t\tallowEnlargement: " . (( $gallery->enlargeImages == "T" ? "true" : "false" )) . ",\n";
-            
-            if ( $gallery->layout == "columns" ) {
-                $html .= "\t\tcolumns: [\n" . "\t\t\t[4000, {$gallery->columns}],\n" . "\t\t\t[1024, {$gallery->columnsTabletLandscape}],\n" . "\t\t\t[800, {$gallery->columnsTabletPortrait}],\n" . "\t\t\t[480, {$gallery->columnsPhoneLandscape}],\n" . "\t\t\t[320, {$gallery->columnsPhonePortrait}]\n" . "\t\t],";
-            } else {
-                $html .= "\t\timageSizeFactor: [\n" . "\t\t\t [4000, " . $gallery->imageSizeFactor / 100 . "]\n" . "\t\t\t,[1024, " . $gallery->imageSizeFactorTabletLandscape / 100 . "]\n" . "\t\t\t,[768, " . $gallery->imageSizeFactorTabletPortrait / 100 . "]\n" . "\t\t\t,[640, " . $gallery->imageSizeFactorPhoneLandscape / 100 . "]\n" . "\t\t\t,[320, " . $gallery->imageSizeFactorPhonePortrait / 100 . "]\n";
-                foreach ( explode( "|", $gallery->imageSizeFactorCustom ) as $isf ) {
-                    $_ = explode( ",", $isf );
-                    if ( !empty($_[0]) ) {
-                        $html .= "\t\t\t,[" . $_[0] . ", " . $_[1] / 100 . "]\n";
-                    }
-                }
-                $html .= "\t\t],\n";
-            }
-            
-            if ( isset( $scrollEffect ) ) {
-                $html .= "\t\tscrollEffect: '" . $gallery->scrollEffect . "',\n";
-            }
-            $html .= "\t\tselectedFilter: '" . $this->slugify( $gallery->defaultFilter ) . "'\n";
-            $html .= "\t});\n";
-            $html .= "\tjQuery(function () {\n";
-            //$html .= "\t\tjQuery('#ftg-$this->id$rid .tile > a').unbind('click');\n";
-            
-            if ( $gallery->disableLightboxGroups == 'T' ) {
-                if ( $lightbox == "prettyphoto" || $lightbox == "fancybox" || $lightbox == "swipebox" || $lightbox == "lightbox2" ) {
-                    $html .= "jQuery('#ftg-{$this->id}{$rid} .tile a.ftg-lightbox').each(function (i) { jQuery(this).attr('rel', 'no-group-' + i);});\n";
-                }
-                if ( $lightbox == "lightbox2" ) {
-                    $html .= "jQuery('#ftg-{$this->id}{$rid} .tile a.ftg-lightbox').each(function (i) { jQuery(this).attr('data-lightbox', 'no-group-' + i);});\n";
-                }
-            }
-            
-            $html .= "\t(function () {\n";
-            /*if(wp_is_mobile())
-            		{
-            			$html .= "\t\tjQuery('#ftg-$this->id$rid .tile').on('touchstart', function (e) {\n";
-            			$html .= "\t\t\tjQuery(this).addClass('hover');\n";
-            			$html .= "\t\t});\n";
-            		}*/
-            $html .= "\t\tvar rel = '';\n";
-            $html .= "\t\tjQuery('#ftg-{$this->id}{$rid} .ftg-lightbox').click(function (e) {\n";
-            $html .= "\t\t\trel = jQuery(this).attr('rel');\n";
-            $html .= "\t\t\tjQuery('#ftg-{$this->id}{$rid} .ftg-current').removeClass('ftg-current');\n";
-            $html .= "\t\t\tjQuery('#ftg-{$this->id}{$rid} [rel=\"'+rel+'\"]').addClass('ftg-current');\n";
-            $html .= "\t\t});\n";
-            $html .= "\t})();\n";
-            $lightbox_options = ( wp_is_mobile() ? $gallery->lightboxOptionsMobile : $gallery->lightboxOptions );
-            switch ( $lightbox ) {
-                case 'magnific':
-                    $html .= "\t\tjQuery('#ftg-{$this->id}{$rid}').magnificPopup({type:'image', zoom: {\n";
-                    $html .= "\t\t\tenabled: true, duration: 300, easing: 'ease-in-out' },\n";
-                    $html .= "\t\t\timage: { titleSrc: 'data-title' }, gallery: { enabled: " . (( $gallery->disableLightboxGroups == 'T' ? "false" : "true" )) . " }, delegate: '.tile:not(.ftg-filter-hidden-tile) .ftg-lightbox.ftg-current',\n";
-                    $html .= stripslashes( $lightbox_options );
-                    $html .= "\t\t});\n";
-                    $html .= "\t\tjQuery('#ftg-{$this->id}{$rid} .ftg-lightbox-iframe').magnificPopup({type:'iframe',";
-                    $html .= stripslashes( $lightbox_options );
-                    $html .= "});\n";
-                    break;
-                case 'prettyphoto':
-                    $html .= "\t\tjQuery('#ftg-{$this->id}{$rid} .tile a.ftg-lightbox').prettyPhoto({";
-                    $html .= "});\n";
-                    break;
-                case 'colorbox':
-                    $html .= "\t\tjQuery('#ftg-{$this->id}{$rid} .tile a.ftg-lightbox').colorbox({";
-                    $html .= "rel: '" . (( $gallery->disableLightboxGroups == 'T' ? "nofollow" : $this->id )) . "',";
-                    $html .= "title: function () { return jQuery(this).data('title'); }});\n";
-                    $html .= "\t\tjQuery('#ftg-{$this->id}{$rid} .tile a.ftg-lightbox-iframe').colorbox({ iframe:true, width:'75%', height:'75%' });\n";
-                    break;
-                case 'fancybox':
-                    $html .= "\t\tjQuery('#ftg-{$this->id}{$rid} .tile a.ftg-lightbox').fancybox();\n";
-                    break;
-                case 'swipebox':
-                    $html .= "\t\tjQuery('#ftg-{$this->id}{$rid} .tile a.ftg-lightbox').swipebox({ removeBarsOnMobile: false});\n";
-                    break;
-                case 'lightgallery':
-                    $html .= "\t\tjQuery('#ftg-{$this->id}{$rid}').lightGallery({\n\t\t\tselector: '.tile:not(.ftg-hidden) .ftg-lightbox',\n";
-                    
-                    if ( $gallery->disableLightboxGroups == 'T' ) {
-                        $html .= "\t\t\tthumbnail: false,\n";
-                        $html .= "\t\t\tcontrols: false,\n";
-                        $html .= "\t\t\tcounter: false,\n";
-                        $html .= "\t\t\tautoplayControls: false,\n";
-                        $html .= "\t\t\tenableDrag: false,\n";
-                        $html .= "\t\t\tmousewheel: false,\n";
-                        $html .= "\t\t\tkeyPress: false,\n";
-                        $html .= "\t\t\tescKey: true,\n";
-                    }
-                    
-                    $html .= "\t\t\tdummy: false,\n";
-                    $html .= stripslashes( $lightbox_options );
-                    $html .= "\t\t});\n";
-                case 'lightbox2':
-                    break;
-            }
-            $html .= "\n";
-            $html .= "\t});\n";
-            $html .= "\t}, " . $gallery->delay . ");\n";
-            $html .= "\t});\n";
-            $html .= "</script>";
             $html .= stripslashes( $this->gallery->afterGalleryText );
-            if ( !empty($_GET["debug"]) ) {
+            if ( !empty( $_GET["debug"] ) ) {
                 return $html;
             }
-            
             if ( $gallery->compressHTML == 'T' ) {
-                return str_replace( array( "\n", "\t" ), "", $html );
+                return str_replace( array("\n", "\t"), "", $html );
             } else {
                 return $html;
             }
-        
         }
-        
-        public function images_markup()
-        {
+
+        public function images_markup() {
             $rid = $this->id;
             $gallery = $this->gallery;
-            $current_filter = ( isset( $_GET['ftg-set'] ) ? $_GET['ftg-set'] : null );
+            $current_filter = ( isset( $_GET['ftg-set'] ) ? sanitize_text_field( wp_unslash( $_GET['ftg-set'] ) ) : null );
             $html = "";
-            $lightbox = ( wp_is_mobile() ? ( $gallery->mobileLightbox == "desktop" ? $gallery->lightbox : $gallery->mobileLightbox ) : $gallery->lightbox );
+            $lightbox = ( wp_is_mobile() ? ( $gallery->mobileLightbox == "desktop" ? esc_attr( $gallery->lightbox ) : esc_attr( $gallery->mobileLightbox ) ) : esc_attr( $gallery->lightbox ) );
             $groups = array();
             foreach ( $this->images as $image ) {
+                if ( null === $image->filters ) {
+                    $image->filters = '';
+                }
                 $img_filters = array_map( "FinalTilesGallery::slugify", explode( '|', $image->filters ) );
                 if ( $gallery->filterClick == "T" && ($current_filter != 'all' && $current_filter != null && !in_array( $current_filter, $img_filters )) ) {
                     continue;
@@ -618,19 +607,17 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
                 if ( $lightbox == 'lightgallery' && $this->useCaptions() ) {
                     $title = 'data-sub-html';
                 }
-                $rel = ( $lightbox == "prettyphoto" ? "prettyPhoto[ftg-{$this->id}{$rid}]" : "ftg-{$this->id}{$rid}" );
+                $rel = ( $lightbox == "prettyphoto" ? "prettyPhoto[ftg-" . absint( $this->id . $rid ) . "]" : "ftg-" . absint( $this->id . $rid ) );
                 if ( $gallery->rel ) {
                     $rel = $gallery->rel;
                 }
-                
-                if ( isset( $image->group ) && !empty($image->group) ) {
-                    $rel = ( $lightbox == "prettyphoto" ? "prettyPhoto[{$image->group}]" : $image->group );
+                if ( isset( $image->group ) && !empty( $image->group ) ) {
+                    $rel = ( $lightbox == "prettyphoto" ? "prettyPhoto[" . esc_attr( $image->group ) . "]" : esc_attr( $image->group ) );
                     $groups[$image->group] = 1;
                 } else {
-                    $groups["ftg-{$this->id}{$rid}"] = 1;
+                    $groups["ftg-" . absint( $this->id . $rid ) . ""] = 1;
                 }
-                
-                if ( wp_is_mobile() && $gallery->mobileLightbox == "lightbox2" && empty($image->link) ) {
+                if ( wp_is_mobile() && $gallery->mobileLightbox == "lightbox2" && empty( $image->link ) ) {
                     $rel = "lightbox";
                 }
                 $data_keep_aspect_ratio = "";
@@ -641,11 +628,26 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
                     $image->filters = "";
                 }
                 $hiddenClass = ( isset( $image->hidden ) && $image->hidden == "T" ? "ftg-hidden-tile" : "" );
-                $html .= "<div {$data_keep_aspect_ratio} class='tile ftg-preload {$hiddenClass} " . $this->getImageFilters( $image ) . "'>\n";
-                
+                $html .= "<div {$data_keep_aspect_ratio} class='tile ftg-preload " . esc_attr( $hiddenClass ) . " " . $this->getImageFilters( $image ) . "'>\n";
                 if ( property_exists( $image, "type" ) && $image->type == "video" ) {
                     $html .= "<div class='fitvidsignore'>";
-                    $html .= $image->imagePath;
+                    $html .= wp_kses( $image->imagePath, array(
+                        'iframe' => array(
+                            'align'           => true,
+                            'width'           => true,
+                            'height'          => true,
+                            'frameborder'     => true,
+                            'name'            => true,
+                            'src'             => true,
+                            'id'              => true,
+                            'class'           => true,
+                            'style'           => true,
+                            'scrolling'       => true,
+                            'marginwidth'     => true,
+                            'marginheight'    => true,
+                            'allowfullscreen' => true,
+                        ),
+                    ) );
                     $html .= "</div>";
                 } else {
                     //$src = $gallery->sequentialImageLoading == "T" ? "" : $image->imagePath;
@@ -653,23 +655,23 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
                     if ( wp_is_mobile() ) {
                         $src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
                     }
-                    $description = ( isset( $image->title ) && !empty($image->title) ? $image->title : $image->description );
+                    $description = ( isset( $image->title ) && !empty( $image->title ) ? $image->title : $image->description );
                     $title_text = $description;
                     if ( $title == "title" ) {
                         $title_text = strip_tags( $title_text );
                     }
                     $title_text = htmlspecialchars( $description, ENT_QUOTES );
                     if ( $lightbox == 'lightgallery' && $this->useCaptions() ) {
-                        $title_text = "<span class='title'>{$image->title}</span><span class='text'>{$image->description}</span>";
+                        $title_text = "<span class='title'>" . wp_kses_post( $image->title ) . "</span><span class='text'>" . wp_kses_post( $image->description ) . "</span>";
                     }
-                    $html .= "<a {$title}=\"" . $title_text . "\" ";
-                    $html .= ( $lightbox == "lightbox2" && empty($image->link) ? "data-lightbox='{$rel}'" : "" );
-                    $html .= " rel='{$rel}' ";
+                    $html .= "<a {$title}=\"" . esc_attr( $title_text ) . "\" ";
+                    $html .= ( $lightbox == "lightbox2" && empty( $image->link ) ? "data-lightbox='" . esc_attr( $rel ) . "'" : "" );
+                    $html .= " rel='" . esc_attr( $rel ) . "' ";
                     $html .= $this->getTarget( $image );
-                    $html .= " class=' tile-inner " . $gallery->aClass . " ";
+                    $html .= " class=' tile-inner " . esc_attr( $gallery->aClass ) . " ";
                     $html .= $this->getLightboxClass( $image ) . "' ";
                     $html .= $this->getLink( $image ) . " ";
-                    $html .= ( $lightbox == "lightgallery" ? "data-download-url='{$image->original}'" : '' );
+                    $html .= ( $lightbox == "lightgallery" ? "data-download-url='" . esc_url( $image->original ) . "'" : '' );
                     $html .= ">\n";
                     if ( !isset( $image->width ) ) {
                         $image->width = "auto";
@@ -677,79 +679,70 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
                     if ( !isset( $image->height ) ) {
                         $image->height = "auto";
                     }
-                    if ( !isset( $image->alt ) || empty($image->alt) ) {
+                    if ( !isset( $image->alt ) || empty( $image->alt ) ) {
                         $image->alt = $description;
                     }
-                    $html .= "<img alt='{$image->alt}' class='item skip-lazy' data-class='item' data-ftg-source='{$image->imagePath}' src='{$src}' width='{$image->width}' height='{$image->height}' />\n";
+                    $html .= "<img alt='" . esc_attr( $image->alt ) . "' class='item skip-lazy' data-class='item' data-ftg-source='" . esc_url( $image->imagePath ) . "' src='" . esc_url( $src ) . "' width='" . esc_attr( $image->width ) . "' height='" . esc_attr( $image->height ) . "' />\n";
                     if ( $gallery->captionPosition == 'inside' ) {
-                        
-                        if ( !(empty($image->description) && empty($image->title)) && $this->useCaptions() || $gallery->captionEmpty == "show" || $this->hasCaptionIcon() ) {
+                        if ( !(empty( $image->description ) && empty( $image->title )) && $this->useCaptions() || $gallery->captionEmpty == "show" || $this->hasCaptionIcon() ) {
                             if ( $this->hasCaptionIcon() ) {
-                                $html .= "\t<span class='icon fa fa-" . $this->getCaptionIcon() . "'></span>\n";
+                                $html .= "\t<span class='icon fa fa-" . esc_attr( $this->getCaptionIcon() ) . "'></span>\n";
                             }
                             $html .= "<div class='caption-block'>\n";
-                            
                             if ( $gallery->source == "images" && $this->useCaptions() ) {
                                 $html .= "\t<div class='text-wrapper'>\n";
-                                if ( !empty($image->title) && $gallery->wp_field_title != "none" ) {
-                                    $html .= "<span class='title'>" . $image->title . "</span>\n";
+                                if ( !empty( $image->title ) && $gallery->wp_field_title != "none" ) {
+                                    $html .= "<span class='title'>" . wp_kses_post( $image->title ) . "</span>\n";
                                 }
-                                if ( !empty($image->description) && $gallery->wp_field_caption != "none" ) {
-                                    $html .= "\t<span class='text'>{$image->description}</span>\n";
+                                if ( !empty( $image->description ) && $gallery->wp_field_caption != "none" ) {
+                                    $html .= "\t<span class='text'>" . wp_kses_post( $image->description ) . "</span>\n";
                                 }
                                 $html .= "\t</div>\n";
                             }
-                            
-                            
                             if ( ($gallery->source == "posts" || $gallery->source == "woocommerce") && $this->useCaptions() ) {
                                 $html .= "\t<div class='text-wrapper'>\n";
-                                $html .= "\t\t<span class='text'>{$image->description}</span>\n";
-                                
+                                $html .= "\t\t<span class='text'>" . wp_kses_post( $image->description ) . "</span>\n";
                                 if ( $gallery->source == "woocommerce" ) {
-                                    $html .= "<div class='woo' data-href='" . get_site_url() . "/cart/?add-to-cart=" . $image->postID . "'>";
-                                    $html .= "\t<span class='price'>" . $image->price . get_woocommerce_currency_symbol() . "</span>\n";
+                                    $html .= "<div class='woo' data-href='" . esc_url( get_site_url() . "/cart/?add-to-cart=" . absint( $image->postID ) ) . "'>";
+                                    $html .= "\t<span class='price'>" . esc_html( $image->price ) . get_woocommerce_currency_symbol() . "</span>\n";
                                     $html .= "\t<span> <i class='fa fa-shopping-cart add-to-cart'></i></span>";
                                     $html .= "</div>";
                                 }
-                                
                                 $html .= "\t</div>\n";
                             }
-                            
                             $html .= "</div>\n";
                         }
-                    
                     }
                     $html .= "</a>\n";
                     if ( $gallery->captionPosition == 'outside' ) {
-                        
-                        if ( !(empty($image->description) && empty($image->title)) && $this->useCaptions() ) {
-                            $html .= "<span class='caption-outside'>\n";
-                            
-                            if ( $gallery->source == "images" ) {
-                                $html .= "\t<span>\n";
-                                if ( !empty($image->title) && $this->useCaptions() ) {
-                                    $html .= "<span class='title'>" . $image->title . "</span>\n";
-                                }
-                                if ( !empty($image->description) && $this->useCaptions() ) {
-                                    $html .= "\t<span class='text'>{$image->description}</span>\n";
-                                }
-                                $html .= "\t</span>\n";
+                        if ( !(empty( $image->description ) && empty( $image->title )) && $this->useCaptions() || $gallery->captionEmpty == "show" || $this->hasCaptionIcon() ) {
+                            if ( $this->hasCaptionIcon() ) {
+                                $html .= "\t<span class='icon fa fa-" . esc_attr( $this->getCaptionIcon() ) . "'></span>\n";
                             }
-                            
+                            $html .= "<div class='caption-outside'>\n";
+                            if ( $gallery->source == "images" && $this->useCaptions() ) {
+                                $html .= "\t<div class='text-wrapper'>\n";
+                                if ( !empty( $image->title ) && $gallery->wp_field_title != "none" ) {
+                                    $html .= "<span class='title'>" . wp_kses_post( $image->title ) . "</span>\n";
+                                }
+                                if ( !empty( $image->description ) && $gallery->wp_field_caption != "none" ) {
+                                    $html .= "\t<span class='text'>" . wp_kses_post( $image->description ) . "</span>\n";
+                                }
+                                $html .= "\t</div>\n";
+                            }
                             if ( ($gallery->source == "posts" || $gallery->source == "woocommerce") && $this->useCaptions() ) {
-                                $html .= "\t<span class='text'>{$image->description}</span>\n";
+                                $html .= "\t<div class='text-wrapper'>\n";
+                                $html .= "\t\t<span class='text'>" . wp_kses_post( $image->description ) . "</span>\n";
+                                if ( $gallery->source == "woocommerce" ) {
+                                    $html .= "<div class='woo' data-href='" . esc_url( get_site_url() . "/cart/?add-to-cart=" . absint( $image->postID ) ) . "'>";
+                                    $html .= "\t<span class='price'>" . esc_html( $image->price ) . get_woocommerce_currency_symbol() . "</span>\n";
+                                    $html .= "\t<span> <i class='fa fa-shopping-cart add-to-cart'></i></span>";
+                                    $html .= "</div>";
+                                }
+                                $html .= "\t</div>\n";
                             }
-                            
-                            if ( $gallery->source == "woocommerce" ) {
-                                $html .= "<div class='woo'>";
-                                $html .= "\t<span class='price'>" . $image->price . get_woocommerce_currency_symbol() . "</span>\n";
-                                $html .= "\t<span href='" . get_site_url() . "/cart/?add-to-cart=" . $image->postID . "'><i class='fa fa-shopping-cart add-to-cart'></i></span>";
-                                $html .= "</div>";
-                            }
-                            
-                            $html .= "</span>\n";
+                            $html .= "</div>\n";
                         }
-                    
                     }
                     $html .= "<div class='ftg-social'>\n";
                     if ( $gallery->enableFacebook == "T" ) {
@@ -761,26 +754,20 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
                     if ( $gallery->enablePinterest == "T" ) {
                         $html .= "<a href='#' data-social='pinterest' class='ftg-pinterest'><i class='fa fa-pinterest'></i></a>\n";
                     }
-                    if ( $gallery->enableGplus == "T" ) {
-                        $html .= "<a href='#' data-social='google-plus' class='ftg-google-plus'><i class='fa fa-google-plus'></i></a>\n";
-                    }
                     $html .= "</div>\n";
                 }
-                
                 $html .= "</div>\n";
             }
             return $html;
         }
-        
-        private function auto_excerpt( $post, $length, $excerpt_ending )
-        {
+
+        private function auto_excerpt( $post, $length, $excerpt_ending ) {
             $text = strip_shortcodes( $post->post_content );
             $text = apply_filters( 'the_content', $text );
             $text = str_replace( '\\]\\]\\>', ']]&gt;', $text );
             $text = preg_replace( '@<script[^>]*?>.*?</script>@si', '', $text );
             $text = strip_tags( $text );
             $words = explode( ' ', $text, $length + 1 );
-            
             if ( count( $words ) > $length ) {
                 array_pop( $words );
                 $text = implode( ' ', $words );
@@ -791,37 +778,29 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
                     ) );
                 }
             }
-            
             $text = trim( $text );
-            
             if ( strlen( $text ) !== strlen( $excerpt_ending ) ) {
                 return $text;
             } else {
                 return '';
             }
-        
         }
-        
-        public function getWooProducts()
-        {
+
+        public function getWooProducts() {
         }
-        
-        public function getPosts()
-        {
-            global  $wpdb ;
+
+        public function getPosts() {
+            global $wpdb;
         }
-        
-        public function getImages()
-        {
+
+        public function getImages() {
             $skip = 0;
             $size = 0;
-            
             if ( $this->gallery->ajaxLoading == "T" ) {
                 $size = $this->gallery->tilesPerPage;
                 $page = ( isset( $_POST['page'] ) ? intval( $_POST['page'] ) : 1 );
                 $skip = ($page - 1) * $size;
             }
-            
             $images = $this->db->getImagesByGalleryId( $this->id, $skip, $size );
             $this->images = array();
             foreach ( $images as $image ) {
@@ -831,10 +810,8 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
             }
             return $this->images;
         }
-        
-        public function getGallery()
-        {
-            
+
+        public function getGallery() {
             if ( $this->gallery == null ) {
                 $this->gallery = $this->db->getGalleryById( $this->id );
                 if ( $this->gallery == null ) {
@@ -845,22 +822,20 @@ if ( !class_exists( "FinalTilesGallery" ) ) {
                         $this->gallery->{$k} = $v;
                     }
                 }
-                
-                if ( !empty($_GET["debug"]) ) {
+                if ( !empty( $_GET["debug"] ) ) {
                     $debug = (array) $this->gallery;
                     $fields = array_keys( $debug );
                     sort( $fields );
                     print "\n<!-- \n";
                     foreach ( $fields as $item ) {
-                        echo  "\t[{$item}] : {$debug[$item]}\n" ;
+                        echo "\t" . esc_html( [$item] ) . " : " . esc_html( $debug[$item] ) . "\n";
                     }
                     print "\n -->\n";
                 }
-            
             }
-            
             return $this->gallery;
         }
-    
+
     }
+
 }

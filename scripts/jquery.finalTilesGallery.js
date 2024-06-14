@@ -1,7 +1,6 @@
 function ftg_getURLParameter(name) {
   return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
 }
-
 //credits James Padolsey http://james.padolsey.com/
 var qualifyURL = function (url) {
     var img = document.createElement('img');
@@ -60,8 +59,6 @@ var qualifyURL = function (url) {
             selectedFilter: '',
             loadMethod: 'sequential',
             
-/* Premium Code Stripped by Freemius */
-            
             onComplete: function () {},
             onUpdate: function () {},
             onLoading: function () {},
@@ -70,11 +67,11 @@ var qualifyURL = function (url) {
 
     // The actual plugin constructor
     function Plugin(element, options) {
-        
+
         /*! properties */
         this.element = element;
         this.$element = $(element);
-        this.settings = $.extend({}, defaults, options);        
+        this.settings = $.extend({}, defaults, options);
         this._columnSize = 0;
         this.columns;
         this._defaults = defaults;
@@ -112,8 +109,8 @@ var qualifyURL = function (url) {
             if(!this.currentImageSizeFactor)
                 this.currentImageSizeFactor = 1;
             this.print("current image size factor: " + this.currentImageSizeFactor + " (" + ww + ")");
-        },        
-        setCurrentColumnSize: function () {            
+        },
+        setCurrentColumnSize: function () {
             var ww = $(window).width();
             for (var i = 0; i < this.settings.columns.length; i++) {
                 if (this.settings.columns[i][0] >= ww) {
@@ -123,11 +120,11 @@ var qualifyURL = function (url) {
                     for(var j=0; j<this.currentColumnsCount; j++) {
                         this.columns.push([]);
                     }
-                }                    
+                }
             }
-            
+
             this._columnSize = (this.currentWidth - (this.settings.margin * (this.currentColumnsCount - 1))) / this.currentColumnsCount;
-                        
+
             this.print(this.currentWidth, this._columnSize);
         },
         setCurrentGridSize: function () {
@@ -142,8 +139,8 @@ var qualifyURL = function (url) {
                     this.currentGridSize = this.settings.gridSize * this.currentImageSizeFactor
                 else
                     this.currentGridSize = this.settings.gridSize;
-            }    
-            this.print("currentGridSize : " + this.currentGridSize);        
+            }
+            this.print("currentGridSize : " + this.currentGridSize);
         },
         init: function () {
             var instance = this;
@@ -161,7 +158,7 @@ var qualifyURL = function (url) {
                 }, 500);
                 return;
             }
-            
+
             this.$element.find(".ftg-items").css({
                 position: 'relative'
             });
@@ -171,22 +168,22 @@ var qualifyURL = function (url) {
                 if(filter_url)
                     current_filter = filter_url;
 
-            var instance = this;           
+            var instance = this;
 
             if(current_filter != null && current_filter != "n-a")
             {
                 instance.print(".. found filter (" + current_filter + ")");
                 instance.$element.find(".ftg-filters a").removeClass('selected');
                 instance.$element.find(".ftg-filters a").each(function(){
-                  
+
                     if($(this).data('filter') == current_filter)
                     {
                         instance.print(".. selecting filter");
                         $(this).addClass('selected');
                     }
                 })
-            }                     
-          
+            }
+
             var hash = window.location.hash;
 
             this.$element.find(".ftg-items").css({
@@ -210,7 +207,7 @@ var qualifyURL = function (url) {
 
                 if($.inArray(ft, filters) >= 0)
                 {
-                   hash_class = hash_class.substring(1);       
+                   hash_class = hash_class.substring(1);
 
                     instance.$element.find(".ftg-filters a").each(function(){
 
@@ -220,9 +217,9 @@ var qualifyURL = function (url) {
                             var img = $(this).parent().parent();
 
                             if(img.hasClass(hash_class) == false)
-                            {                                
+                            {
                                 img.addClass('ftg-filter-hidden-tile');
-                            }                          
+                            }
                          })
 
 
@@ -231,8 +228,8 @@ var qualifyURL = function (url) {
                      });
 
                      $('a[href="' + ft + '"]').addClass('selected');
-                }                
-            }   
+                }
+            }
 
             this.tiles = this.$element.find('.tile').not('.ftg-hidden-tile').not('.ftg-filter-hidden-tile');
 
@@ -241,12 +238,12 @@ var qualifyURL = function (url) {
             });*/
             this.currentWidth = this.$element.width();
             this.print("this.currentWidth: " + this.currentWidth);
-            
-            if(this.settings.layout != 'columns' && this.settings.layout != 'rows' && 
+
+            if(this.settings.layout != 'columns' && this.settings.layout != 'rows' &&
                 this.settings.layout != 'final') {
                     console.log("WARNING: unknown layout, falling back to 'final'.")
                 }
-                
+
             if(this.settings.layout == 'columns') {
                 this.setCurrentColumnSize();
             }
@@ -276,10 +273,10 @@ var qualifyURL = function (url) {
                             instance.isLoading = true;
                             if(instance.settings.onLoading)
                               instance.settings.onLoading();
-                            
+
                             $.post(
-                                    instance.settings.autoLoadURL, 
-                                    { 
+                                    instance.settings.autoLoadURL,
+                                    {
                                         page: ++instance.currentPage,
                                         action: 'load_chunk',
                                         pageSize: instance.settings.pageSize,
@@ -300,15 +297,13 @@ var qualifyURL = function (url) {
             }
 
             
-/* Premium Code Stripped by Freemius */
-
             this.edges.push({ left: 0, top: 0, width: this.currentWidth, index: 0 });
 
             this.isImageLoading = false;
-            if(this.settings.loadMethod == 'lazy') {				
-				$(window).scroll(function(event) {  
+            if(this.settings.loadMethod == 'lazy') {
+				$(window).scroll(function(event) {
 					instance.loadImage();
-				});				
+				});
 			}
             this.loadImage();
         },
@@ -326,8 +321,6 @@ var qualifyURL = function (url) {
             this.refresh();
         },
         
-/* Premium Code Stripped by Freemius */
-
         printEdges: function () {
             this.$element.find(".edge").remove();
             for (i = 0; i < this.edges.length; i++) {
@@ -370,38 +363,38 @@ var qualifyURL = function (url) {
             this._loadedImages = 0;
             this.loadImage();
         },
-                
-        getAvailableRowSpace: function () {         
+
+        getAvailableRowSpace: function () {
             return this.currentWidth - this.getBusyRowSpace();
         },
-        
+
         getBusyRowSpace: function () {
             var space = 0;
             for(var i=0; i<this._rows[this._currentRow].length; i++) {
-                space += this._rows[this._currentRow][i].data('width') + 
+                space += this._rows[this._currentRow][i].data('width') +
                             this.settings.margin;
             }
             return space;
         },
-        
+
         addImageToRow: function($img) {
             this._rows[this._currentRow].push($img);
         },
-        
+
         fitImagesInRow: function () {
             var left = this.getAvailableRowSpace() - this.settings.margin;
             var ratio = (this.currentWidth - (this._rows[this._currentRow].length - 1) * this.settings.margin) / this.getBusyRowSpace();
-            
+
             for(var i=0; i<this._rows[this._currentRow].length; i++) {
                 $item = this._rows[this._currentRow][i];
                 var w = $item.data('width');
                 var h = $item.data('height');
-                
+
                 $item.data('width', w * ratio);
                 this.add(this._currentRowTile++);
             }
         },
-        
+
         nextTile : function (add) {
             var instance = this;
             instance.isImageLoading = false;
@@ -414,11 +407,11 @@ var qualifyURL = function (url) {
                 var height = instance.lowerEdgeTop();
                 instance.print("lower edge top: " + height);
                 //instance.$element.find(".ftg-items").height(height);
-                instance.isLoading = false;                
+                instance.isLoading = false;
                 instance.settings.onComplete();
             }
         },
-        
+
         /*! loadImage */
         loadImage: function () {
             var instance = this;
@@ -427,14 +420,14 @@ var qualifyURL = function (url) {
                 this.print("No more images to load");
 	            return;
             }
-            
+
             instance.isImageLoading = true;
 
             var $tile = this.tiles.eq(this._loadedImages);
 
             if(instance._loadedImages > 0) {
 	            var $last = instance.tiles.filter(".ftg-loaded").last();
-	            
+
 	            if(instance.settings.loadMethod == 'lazy' && !$last.visible(true)) {
 		            instance.isImageLoading = false;
 		            return;
@@ -444,7 +437,7 @@ var qualifyURL = function (url) {
             if($tile.find("iframe").length)
                 $tile.find("iframe").addClass("item");
 
-            var $item = $tile.find('.item');            
+            var $item = $tile.find('.item');
 
             switch ($item.get(0).tagName.toLowerCase()) {
                 case "img":
@@ -472,21 +465,21 @@ var qualifyURL = function (url) {
                             size.width = (instance.settings.rowHeight * img.width) / img.height;
                             size.height = instance.settings.rowHeight;
                             addImage = false;
-                            
+
                             if(instance.getAvailableRowSpace() > size.width) {
                                 instance.addImageToRow($item);
-                            } else {                                
+                            } else {
                                 //not enough available space, make a new row
                                 //and print the current one
                                 instance.fitImagesInRow();
                                 instance._currentRow++;
                                 instance._rows.push([]);
-                                instance.addImageToRow($item);                          
+                                instance.addImageToRow($item);
                             }
                         }
-                        
+
                         $item.attr("src", this.src);
-                        
+
                         instance.imagesData["tile" + instance._loadedImages] = {
                             width: size.width,
                             height: size.height,
@@ -494,7 +487,7 @@ var qualifyURL = function (url) {
                             oheight: img.height,
                             src: img.src
                         };
-                        
+
                         instance.nextTile(addImage);
                     }
                     img.onerror = function() {
@@ -505,10 +498,10 @@ var qualifyURL = function (url) {
                     $tile.data("ftg-type", "image");
                     break;
                 case "iframe":
-                    var w = $item.attr("width") ? 
+                    var w = $item.attr("width") ?
                                     parseInt($item.attr("width")) :
                                     $item.data("width");
-                    var h = $item.attr("height") ? 
+                    var h = $item.attr("height") ?
                                     parseInt($item.attr("height")) :
                                     $item.data("height");
                     var size = {
@@ -601,7 +594,7 @@ var qualifyURL = function (url) {
                 for(var j=0; j<this.columns[i].length; j++) {
                     if(this.columns[i][j] > h)
                         h = this.columns[i][j];
-                }    
+                }
             }
             return h;
         },
@@ -627,7 +620,7 @@ var qualifyURL = function (url) {
                     //console.log("shortest is ", i, last);
                     ret.top = last;
                     ret.col = i;
-                }                 
+                }
             }
 
             if(ret.top == 0)
@@ -644,23 +637,21 @@ var qualifyURL = function (url) {
         },
         add_to_column: function (tileIndex) {
             var $t = this.tiles.eq(tileIndex);
-            
+
             var $item = $t.find('.item');
             var key = "tile" + tileIndex;
             var w = this.imagesData[key].width;
             var h = this.imagesData[key].height;
 
             var slot = this.get_shortest_col();
-            
+
             var ratio = h / w;
 
             var t_w = this._columnSize;
             var t_h = t_w * ratio;
             var t_h_b = t_w * ratio;
-            
-            //console.log("tw, th", t_w, t_h);
 
-            if(this.currentGridSize) {                
+            if(this.currentGridSize) {
                 var n = Math.floor(t_h / this.currentGridSize);
                 if(n > 0) {
                     t_h = this.currentGridSize * n;
@@ -685,38 +676,43 @@ var qualifyURL = function (url) {
 
             var hdiff = t_h_b - t_h;
 
-            if ($t.data("ftg-type") != "iframe") 
+            if ($t.data("ftg-type") != "iframe")
               $item.css({ height: "auto" });
 
             if(hdiff > 0) {
                 $item.css({
-                    top: 0 - (hdiff / 2)                    
+                    top: 0 - (hdiff / 2)
                 });
             }
-
             var transition = $t.css('transition');
-            $t.css({
-              display: 'block',
-              //opacity: 1,
-              transform: 'scale(1)'
-              //transition: 'none'
-            });
+
+            setTimeout( function () {
+                $t.css( {
+                    display  : 'block',
+                    transform: 'scale(1)'
+                } );
+            }, 1 );
+
             $t.addClass("ftg-loaded");
 
             this.columns[slot.col].push(slot.top + t_h + this.settings.margin);
-            
+
             this.$element.find(".ftg-items").css({
                 height: this.get_highest_col() + "px"
             });
         },
         add_to_final: function (tileIndex) {
+            var outside = false;
+            if ($('.final-tiles-gallery').hasClass('caption-outside')) {
+                outside = true;
+            }
             var $t = this.tiles.eq(tileIndex);
 
             var $item = $t.find('.item');
             var key = "tile" + tileIndex;
+
             var w = this.imagesData[key].width;
             var h = this.imagesData[key].height;
-
 
             var hEdge = this.higherEdge();
             this.print(hEdge);
@@ -727,6 +723,9 @@ var qualifyURL = function (url) {
 
             if (hEdge.top > 0) {
                 hEdge.top += this.settings.margin;
+            }
+            if (outside === true) {
+                h += 30;
             }
 
             $t.css({
@@ -792,7 +791,7 @@ var qualifyURL = function (url) {
                             $t.find(".item").css({
                                 width: w,
                                 height: h
-                            }); 
+                            });
                     }
 
                     w = w2;
@@ -830,7 +829,7 @@ var qualifyURL = function (url) {
                 $t.height(h);
             }
 
-            if (this.$element.find(".ftg-items").height() < hEdge.top)
+            if (this.$element.find(".ftg-items").height() != hEdge.top)
                 this.$element.find(".ftg-items").height(hEdge.top);
 
             if(this.settings.debug && printEdge) {
@@ -844,31 +843,35 @@ var qualifyURL = function (url) {
             this.print(w + "x" + h);
             this.print("----");
 
+            if (outside === true) {
+                h += 30;
+            }
+
             $t.css({
                 width: w,
                 height: h
             });
-
             var transition = $t.css('transition');
-            $t.css({
-              display: 'block',
-              //opacity: 1,
-              transform: 'scale(1)'
-              //transition: 'none'
-            });
-
             var ratio = w / this.imagesData[key].width;
-
             var hdiff = (this.imagesData[key].height * ratio) - h;
 
-            if ($t.data("ftg-type") != "iframe") 
+            if ($t.data("ftg-type") != "iframe")
               $item.css({ height: "auto" });
 
             if(hdiff > 0) {
                 $item.css({
-                    top: 0 - (hdiff / 2)                    
+                    top: 0 - (hdiff / 2)
                 });
             }
+
+            // Set a minor timeout so that the function won't be triggered right away
+            setTimeout( function () {
+                $t.css( {
+                    display  : 'block',
+                    transform: 'scale(1)'
+                } );
+            }, 1 );
+
             $t.addClass("ftg-loaded");
         }
     });
@@ -884,11 +887,15 @@ var qualifyURL = function (url) {
         return this;
     };
 
+    $(window).on('load', function(){
+        $('.loading-bar i').css({
+            width: '100%'
+        });
+    });
+
     $(function () {
         
-/* Premium Code Stripped by Freemius */
-
-        $(".ftg-social a").click(function(e) {
+        $(".ftg-social a").on( 'click', function(e) {
 
             e.preventDefault();
             var social = $(this).data("social");
@@ -905,7 +912,7 @@ var qualifyURL = function (url) {
             if(! desc.length)
                 desc = document.title;
 
-            if(social == "facebook") {                
+            if(social == "facebook") {
                 var url = "https://www.facebook.com/dialog/feed?app_id=1447224948871585&"+
                             "link="+encodeURIComponent(location.href)+"&" +
                             "display=popup&"+
@@ -935,12 +942,6 @@ var qualifyURL = function (url) {
                 w.moveTo((screen.width / 2) - (300), (screen.height / 2) - (200));
             }
 
-            if(social == "google-plus") {
-                var url = "https://plus.google.com/share?url=" + encodeURI(location.href);
-
-                var w = window.open(url, "ftgw", "location=1,status=1,scrollbars=1,width=600,height=400");
-                w.moveTo((screen.width / 2) - (300), (screen.height / 2) - (200));
-            }
         });
     });
 })(jQuery, window, document);

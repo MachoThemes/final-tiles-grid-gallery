@@ -1,9 +1,9 @@
 === Image Photo Gallery Final Tiles Grid ===
-Contributors: machothemes, silkalns
+Contributors: wpchill, silkalns, freemius
 Tags: gallery, grid gallery, best gallery plugin, free gallery, gallery plugin, gallery grid plugin, masonry, photo gallery, image gallery, social gallery, portfolio gallery, lightbox, justified gallery
-Requires at least: 3.8.2
-Tested up to: 6.0
-Stable tag: 3.4.17
+Requires at least: 5.2
+Tested up to: 6.5
+Stable tag: 3.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,7 +17,7 @@ Image Gallery + Photo Gallery + Portfolio Gallery + Tiled Gallery in 1 plugin. I
 
 There are dozens of wordpress photo galleries out there, but the problem is that they always look the same!
 Final Tiles Grid Gallery uses a brand new algorithm to make much more interesting image grids, how does it work?
-The main concept is very simple: it doesn't crop the images and it keeps the original size (if possible). 
+The main concept is very simple: it doesn't crop the images and it keeps the original size (if possible).
 
 This is a completely new way to build photo galleries because now you can think of the images like they were tiles with different sizes, so you can use a bigger size for a cover image, for example.
 
@@ -42,8 +42,6 @@ This gallery plugin is perfect for you if you need:
 * video gallery
 
 = PRO version features =
-
-**SAVE 30%** with the bundle [CREATIVE Pack](https://www.final-tiles-gallery.com/wordpress/bundle) 
 
 Final Tiles Gallery Lite is a very complete plugin but if you want the best experience consider buying a PRO license. The PRO version has all features of Lite version plus:
 
@@ -89,7 +87,7 @@ The simplest way to install is to click on 'Plugins' then 'Add' and type 'Final 
 
 Check the console of the browser and look if you see any error like: Uncaught TypeError: undefined is not a function jquery.finalTilesGalleryLite.js
 This errors means that the browser doesn't know the finalTilesGalleryLite JavaScript plugin, most of the time the problem is caused by a wrong jQuery
-inclusion by the theme or another plugin. 
+inclusion by the theme or another plugin.
 
 = Why the images arrange themselves in columns ? =
 
@@ -102,7 +100,7 @@ Have a look at this [video tutorial](https://www.youtube.com/watch?v=RNT4JGjtyrs
 
 = Why does some image look blurry ? =
 
-Under some circumstances the images have to be enlarged a bit to avoid gaps. To avoid a blurry effect you can decrease the "Image size factor" setting. 
+Under some circumstances the images have to be enlarged a bit to avoid gaps. To avoid a blurry effect you can decrease the "Image size factor" setting.
 
 = I want to use another lightbox instead of the provided one =
 
@@ -116,13 +114,6 @@ Currently galleries made with Envira, FooGallery, Instagram, NextGen, JetPack, M
 
 * Get priority support with a PRO license: http://www.final-tiles-gallery.com/wordpress/pricing
 
-= How can I say thanks? =
-
-* Just recommend our plugin to your friends! or
-* Like and share our [Facebook page](https://www.facebook.com/machothemes "Facebook fan page")
-* Or buy me a [present](http://amzn.eu/5SP6qpj)
-
-
 == Screenshots ==
 
 1. Gallery Example 1
@@ -133,6 +124,70 @@ Currently galleries made with Envira, FooGallery, Instagram, NextGen, JetPack, M
 6. 52 pages documentation
 
 == Changelog ==
+
+= 3.6.0 - 21.05.2024 =
+- Update: Input animation duration escape.
+- Update: Moved gallery inline js to wp_footer.
+- Fixed: Cannot assign filters to posts.
+- Update: PHP 8.3 compatibility.
+- Fixed: Visible gap at the botttom of the gallery when resizing.
+- Fixed: Security issue fix
+
+= 3.5.8 - 07/07/2023 =
+- Update: Freemius framework.
+
+= 3.5.7 - 20/02/2023 =
+- Fixed: Defaults for get_posts
+
+= 3.5.6 - TBD =
+- Update: Freemius framework.
+
+= 3.5.5 - 07/03/2022 =
+- Fixed: security issue
+
+= 3.5.4 - 18/01/2022 =
+- Fixed: Sanitized custom CSS and custom script entered by user
+
+= 3.5.3 - 17/01/2022 =
+- Fixed: Security fixes regarding sanitization and escaping
+
+= 3.5.2 - 10/01/2022 =
+- Removed: Google Plus
+- Fixed: Gallery images Would not show
+- Fixed: Lightbox Settings would not save properly
+- Fixed: Image upload modal would display a strange countour
+
+= 3.5.1 - 27/05/2021 =
+- Fixed: Columns layout images not beeing displayed
+- Fixed: on.load jQuery typo
+
+= 3.5.0 - 27/05/2021 =
+- Fixed: After deleting/cloning a gallery the Gallery page is properly reloading.
+- Fixed: Caption option on mobile.
+- Fixed: Loading bar progress bug.
+- Fixed: Presets for Loading and Hover effects.
+
+= 3.4.22 =
+* Update freemius framework.
+
+= 3.4.21 =
+* Fixed html in captions
+* Escaping and Sanitization
+* Small fixes
+
+= 3.4.20 =
+* Fix embeded video display
+* Fixed html in title
+
+= 3.4.19 =
+* Escaping and Sanitization
+* Fixed edit link in admin dashboard
+
+= 3.4.18 =
+* Minor update for tooltips
+* Add shortcode copy functionality
+* Color picker bug gix
+* Toggle input bug fix
 
 = 3.4.17 =
 * Fix and update tooltips
@@ -148,7 +203,7 @@ Currently galleries made with Envira, FooGallery, Instagram, NextGen, JetPack, M
 * [Fix] Fixed mobile links
 
 = 3.4.13 =
-* [Fix] Updated Freemius SDK 
+* [Fix] Updated Freemius SDK
 
 = 3.4.12 =
 * [Fix] Fixed image drag and drop
@@ -262,38 +317,38 @@ Currently galleries made with Envira, FooGallery, Instagram, NextGen, JetPack, M
 = 3.3.17 =
 * [Fix] Fixed issues in admin panel
 
-= 3.3.16 = 
+= 3.3.16 =
 * [Fix] Fixed plugin name
 
-= 3.3.15 = 
+= 3.3.15 =
 * [Fix] Fixed minor issue
 
-= 3.3.14 = 
+= 3.3.14 =
 * [Fix] Fixed bug on activation
 
-= 3.3.13 = 
+= 3.3.13 =
 * Fixed menu slug
 
-= 3.3.10 = 
+= 3.3.10 =
 * Lite and paid versions merged in same repository
 
-= 3.0.6 = 
+= 3.0.6 =
 * [Enhancement] Backend UI tweaks
 
-= 3.0.5 = 
+= 3.0.5 =
 * [Fix] Fixed bug when using masonry layout
 
-= 3.0.4 = 
+= 3.0.4 =
 * [Fix] Fixed bug in FinalTilesLiteDB::getImagesByGalleryId()
 
-= 3.0.3 = 
+= 3.0.3 =
 * [Enhancement] Backend UI tweaks
 * [Add] Functionalities for usage analysis
 
-= 3.0.2 = 
+= 3.0.2 =
 * [Add] Support for servers without PHP iconv extension
 
-= 3.0.1 = 
+= 3.0.1 =
 * [Fix] Fixed typo in admin panel markup
 
 = 3.0.0 =
@@ -365,7 +420,7 @@ Currently galleries made with Envira, FooGallery, Instagram, NextGen, JetPack, M
 * [Enhancement] Gallery shows proper message when id doesn't exist
 
 = 3.4.13 =
-* [Fix] Updated Freemius SDK 
+* [Fix] Updated Freemius SDK
 
 = 3.4.12 =
 * [Fix] Fixed image drag and drop
@@ -437,19 +492,19 @@ Currently galleries made with Envira, FooGallery, Instagram, NextGen, JetPack, M
 = 3.3.19 =
 * [Fix] Fixed ignored caption font size
 
-= 3.3.10 = 
+= 3.3.10 =
 * Lite and paid versions merged in same repository
 
-= 3.0.6 = 
+= 3.0.6 =
 * [Enhancement] Backend UI tweaks
 
-= 3.0.5 = 
+= 3.0.5 =
 * [Fix] Fixed bug when using masonry layout
 
-= 3.0.4 = 
+= 3.0.4 =
 * [Fix] Fixed bug in FinalTilesLiteDB::getImagesByGalleryId()
 
-= 3.0.3 = 
+= 3.0.3 =
 * [Enhancement] Backend UI tweaks
 * [Add] Functionalities for usage analysis
 

@@ -28,7 +28,7 @@
 			},
 			layout: {
 				type: 'string',
-				default: ''
+				default: 'columns'
 			},
 			shortcodeAtts: {
 				type: 'string',
@@ -69,7 +69,6 @@
 							label: __( 'Select gallery layout', 'FinalTiles-gallery' ), 
 							value: layout, 
 							options: [
-								{ label: __('Default', 'FinalTiles-gallery'), value: '' },
 								{ label: __('Masonry', 'FinalTiles-gallery'), value: 'columns' },
 								{ label: __('Final Tiles', 'FinalTiles-gallery'), value: 'final' }
 							],
@@ -127,10 +126,7 @@
 
 			var galleryShortcode = '';
 			if ( 'undefined' !== (typeof galleryId) && galleryId > 0 ) {
-				var layoutCode = "";
-				if(layout != "")
-					layoutCode = ' layout="' + layout + '" ';
-				galleryShortcode = '[FinalTilesGallery id="' + galleryId +'" ' + layoutCode + shortcodeAtts +']';
+				galleryShortcode = '[FinalTilesGallery id="' + galleryId +'" layout="'+ layout +'" '+ shortcodeAtts +']';
 			}
 
 			return el( 'div', {

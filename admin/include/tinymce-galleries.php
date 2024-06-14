@@ -7,10 +7,10 @@
 		<script>
 		var wpColorPickerL10n = {"clear":"Clear","defaultString":"Default","pick":"Select Color","current":"Current Color"};
 		</script>
-		<script type="text/javascript" src="<?php print $admin_url ?>/load-scripts.php?c=1&load%5B%5D=jquery-core,jquery-migrate,utils,jquery-ui-core,jquery-ui-widget,jquery-ui-mouse,jquery-ui-draggable,jquery-ui-slider,jquery-tou&load%5B%5D=ch-punch,iris,wp-color-picker"></script>
-		<link rel="stylesheet" href="<?php print admin_url( 'load-styles.php?c=1&dir=ltr&load=buttons,wp-admin,iris,wp-color-picker'); ?>" type="text/css" media="all">			
-		<link rel="stylesheet" href="<?php print $css_path ?>">
-		<script language="javascript" type="text/javascript" src="<?php echo includes_url( 'js/tinymce/tiny_mce_popup.js' ).'?ver='.$wp_version; ?>"></script> 	
+		<script type="text/javascript" src="<?php print esc_url( $admin_url ) ?>/load-scripts.php?c=1&load%5B%5D=jquery-core,jquery-migrate,utils,jquery-ui-core,jquery-ui-widget,jquery-ui-mouse,jquery-ui-draggable,jquery-ui-slider,jquery-tou&load%5B%5D=ch-punch,iris,wp-color-picker"></script>
+		<link rel="stylesheet" href="<?php print esc_url( admin_url( 'load-styles.php?c=1&dir=ltr&load=buttons,wp-admin,iris,wp-color-picker') ); ?>" type="text/css" media="all">			
+		<link rel="stylesheet" href="<?php print esc_url( $css_path ) ?>">
+		<script language="javascript" type="text/javascript" src="<?php echo esc_url( includes_url( 'js/tinymce/tiny_mce_popup.js' ).'?ver='.$wp_version); ?>"></script> 	
 		<style type="text/css">
 			h1
 			{
@@ -62,15 +62,15 @@
 			<?php foreach($galleries as $gallery): ?>				
 				<tr>
 					<td>
-						<label  id="<?php print 'gall_' . $gallery->Id ?>"> <?php print $gallery->name ?> </label>
+						<label  id="<?php print 'gall_' . esc_attr( $gallery->Id ) ?>"> <?php print esc_html( $gallery->name ); ?> </label>
 					</td>
 
 					<td>
-						<?php print !empty($gallery->source) ? $gallery->source : "images"; ?>
+						<?php print !empty($gallery->source) ? esc_html( $gallery->source ) : "images"; ?>
 					</td>
 
 					<td>
-						<?php print $gallery->Id ?>
+						<?php print esc_html( $gallery->Id ); ?>
 					</td>
 				</tr>
 			<?php endforeach ?>

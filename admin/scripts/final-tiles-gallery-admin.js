@@ -47,11 +47,9 @@ var FTG = function($) {
                 gid: $("#gallery-id").val()
             };
             
-/* Premium Code Stripped by Freemius */
-
             $.post(ajaxurl, data, function(html) {
                 $("#image-list").empty().append(html);
-                
+
                 if (source == 'images') {
                     $("#image-list").sortable({
                         cancel: ".nosort",
@@ -132,19 +130,13 @@ var FTG = function($) {
         },
         update_filters: function() {
             
-/* Premium Code Stripped by Freemius */
-
         },
         update_custom_isf: function() {
             var isf = [];
             
-/* Premium Code Stripped by Freemius */
-
         },
         add_filter: function(value) {
-
-/* Premium Code Stripped by Freemius */
-
+            
         },
         add_isf: function(value) {
             var $item = $("<tr><td class='del'></td><td></td><td></td></tr>");
@@ -168,18 +160,12 @@ var FTG = function($) {
             var source = $('[name="ftg_source"]').val();
 
             
-/* Premium Code Stripped by Freemius */
-
         },
         refresh_woocommerce: function() {
             
-/* Premium Code Stripped by Freemius */
-
         },
         refresh_posts: function() {
             
-/* Premium Code Stripped by Freemius */
-
         },
         save_gallery: function() {
             // !gallery save
@@ -347,7 +333,7 @@ var FTG = function($) {
             $("body").on("keyup", ".filters .f", function() {
                 $(this).siblings("input").val(this.value);
             });
-            
+
             $('[name="ftg_lightbox"]').change(function () {
                 if($(this).val() == "everlightbox")
                     $(".ftg-everlightbox-settings").show();
@@ -381,8 +367,8 @@ var FTG = function($) {
                 });
                 if (selected.length == 0) {
                     return
-                } else {    
-                                        
+                } else {
+
                     var data = {
                         action: 'assign_group',
                         FinalTiles_gallery: $('#FinalTiles_gallery').val(),
@@ -406,8 +392,8 @@ var FTG = function($) {
                 });
                 if (selected.length == 0) {
                     return
-                } else {    
-                                        
+                } else {
+
                     var filters = [];
                     $("#filters-to-assign :checked").each(function(i, o) {
                         filters.push($(o).val());
@@ -453,7 +439,7 @@ var FTG = function($) {
                     });
                 }
             });
-           
+
 
             $("[name=ftg_layout]").change(function() {
 
@@ -514,14 +500,14 @@ var FTG = function($) {
                 if($(this).val() == "F")
                 {
                     $(".js-ajax-loading").hide();
-                }                    
+                }
                 else
                 {
                     var val = parseInt($('[name="ftg_tilesPerPage"]').val());
                     if(val == 0)
                         $('[name="ftg_tilesPerPage"]').val(20);
                     $(".js-ajax-loading").show();
-                }                    
+                }
             }).change();
 
             $(".field .text .integer-only").keypress(function(e) {
@@ -543,8 +529,6 @@ var FTG = function($) {
                 FTG.save_gallery();
             });
             
-/* Premium Code Stripped by Freemius */
-
             $("#image-list").on("click", ".item .thumb", function() {
                 $(this).parents(".item").toggleClass("selected");
                 $(this).parents(".item").find(".checkbox").toggleClass("checked");
@@ -622,9 +606,7 @@ var FTG = function($) {
                 else
                     $(".js-no-hidden").show();
 
-
-/* Premium Code Stripped by Freemius */
-
+                
 
                 var link = $item.find("[name=link]").val();
 
@@ -684,9 +666,7 @@ var FTG = function($) {
                     $("[data-action='remove']").show();
                 }
 
-
-/* Premium Code Stripped by Freemius */
-
+                
             });
 
             var refreshPostsTO = 0;
@@ -712,9 +692,7 @@ var FTG = function($) {
                 }, 500);
             });
 
-
-/* Premium Code Stripped by Freemius */
-
+            
             $("body").on("click", "[name=click_action]", function() {
                 if ($(this).val() == "url") {
                     $(this).siblings("[name=url]").get(0).disabled = false;
@@ -723,7 +701,7 @@ var FTG = function($) {
                 }
             });
             $("body").on("change", ".presets", function () {
-                var idx = $(this).data("field-idx");                
+                var idx = $(this).data("field-idx");
                 for(p in presets["preset_" + idx + "_" + $(this).val()]) {
                     $('[name="ftg_'+ p +'"]').val(presets["preset_" + idx + "_" + $(this).val()][p]).change();
                 }
@@ -780,7 +758,7 @@ var FTG = function($) {
                         });
                         if (selected.length == 0) {
                             alert("No images selected");
-                        } else {    
+                        } else {
                             $("#groups-modal").data("ids", selected);
 
                             //var instance = M.Modal.getInstance($("#groups-modal"));
@@ -868,7 +846,7 @@ var FTG = function($) {
 
                             $(".panel", $bulk).slideDown();
                         }
-                    break;                    
+                    break;
                 }
             });
             $("body").on("click", "[data-remove-images]", function () {
@@ -893,10 +871,14 @@ var FTG = function($) {
                 }
             });
             $("body").on("click", ".lever", function() {
-                if ($(this).siblings("input").attr("checked"))
+                var shortcode = $(this).parents('.field').find('.shortcode-val').text().split("=");
+                if ($(this).siblings("input").attr("checked")) {
                     $(this).siblings("input").removeAttr("checked");
-                else
+                    $(this).parents('.field').find('.shortcode-val').text(shortcode[0] + '="F"' );
+                } else {
                     $(this).siblings("input").attr("checked", "checked");
+                    $(this).parents('.field').find('.shortcode-val').text(shortcode[0] + '="T"' );
+                }
             });
             $("body").on("click", ".show-help", function(e) {
                 e.preventDefault();
@@ -909,7 +891,7 @@ var FTG = function($) {
                     var val = this.checked ? "T" : "F";
 
                 } else {
-                    var val = $(this).val();                                        
+                    var val = $(this).val();
                 }
                 if($("#preview-" + code).length) {
                     $("#preview-" + code).text(val);
@@ -925,9 +907,7 @@ var FTG = function($) {
                 $("#shortcode-" + code).toggleClass("visible");
             });
 
-
-/* Premium Code Stripped by Freemius */
-
+            
 
             $(".open-media-panel").on("click", function(e) {
                 e.preventDefault();
@@ -1008,14 +988,16 @@ var FTG = function($) {
             $(".open-checkout").click(function (e) {
                 e.preventDefault();
                 var url = $(this).attr("href");
-                
+
                 var strWindowFeatures = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=yes,width=650";
-                window.open(url, "EverlightBox", strWindowFeatures);                
+                window.open(url, "EverlightBox", strWindowFeatures);
             });
         },
         init: function() {
             $backToTop = $(".back-to-top");
             FTG.bind();
+            // Adding the load_images here will trigger 2 identical requests on PHP8 but solves the problem on PHP 7.3^ and triggers only 1 request
+            FTG.load_images();
             // $("[name=ftg_source]").change();
             $imageList = $("#image-list");
             setInterval(function() {
@@ -1077,21 +1059,15 @@ var FTGWizard = function($) {
                         if (branch == 'images') {
                             $(".select-images").show();
                             
-/* Premium Code Stripped by Freemius */
-
                             //$("[name=ftg_max_posts]").val(0);
                         } else if (branch == 'posts') {
                             $(".select-images").hide();
                             $("[name=enc_images]").val("");
                             
-/* Premium Code Stripped by Freemius */
-
                         } else {
                             $(".select-images").hide();
                             $("[name=enc_images]").val("");
-
-/* Premium Code Stripped by Freemius */
-
+                            
                         }
                     } else {
                         $(this).text("Next");
@@ -1167,14 +1143,13 @@ var FTGWizard = function($) {
 
             $_wizard.find("footer a").addClass("disabled");
             $_wizard.find(".loading").show();
-
             $.ajax({
                 url: ajaxurl,
                 data: data,
                 dataType: "json",
                 type: "post",
                 error: function(a, b, c) {
-                    M.Modal.getInstance($("#error")).open();                    
+                    M.Modal.getInstance($("#error")).open();
                 },
                 success: function(id) {
                     id = $.trim(id);
@@ -1197,11 +1172,11 @@ jQuery(function() {
         change: function (event, ui) {
             var element = event.target;
             var color = ui.color.toString();
-            
+
             if($(element).parents(".field").hasClass("js-update-shortcode")) {
                 var code = $(element).parents(".field").find(".shortcode-val");
-                var shortcode = $input.text().split("=");
-                $input.text(shortcode[0] + '="' + color + '"');
+                var shortcode = $(element).val();
+                code.text(shortcode[0] + '="' + color + '"');
             }
         },
     });

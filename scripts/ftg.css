@@ -25,6 +25,8 @@
 .final-tiles-gallery .loading-bar i {
   width: 0%;
   display: block;
+  height: 2px;
+  transition: all 1s;
 }
 .final-tiles-gallery .tile {
   float: left;
@@ -37,7 +39,7 @@
   transition-duration: .25s; 
   perspective: 1000px;
 }
-.final-tiles-gallery .tile.ftg-loaded {
+html body .final-tiles-gallery .ftg-items .tile.ftg-loaded {
   opacity: 1;
   display: block;
 }
@@ -113,7 +115,7 @@
   opacity: 1;
 }
 .final-tiles-gallery .tile iframe.item {
-  width: 100%;
+  width: 100% !important;
 }
 .final-tiles-gallery .ftg-filters {
   margin-bottom: 20px;
@@ -149,6 +151,11 @@
 }
 .final-tiles-gallery.caption-frame .tile .caption-block {
   border:1px solid #fff;
+}
+.final-tiles-gallery.caption-frame .tile .caption-outside {
+  border:1px solid #fff;
+  padding: 0 10px;
+  margin-top: 3px;
 }
 .final-tiles-gallery.caption-frame.caption-middle .tile .caption-block {
   top:10px;
@@ -279,9 +286,9 @@
 .final-tiles-gallery.effect-speed-fast .tile img { transition-duration: .2s; }
 .final-tiles-gallery.effect-speed-very-fast .tile img { transition-duration: .1s; }
 
-.final-tiles-gallery.caption-left .tile .caption-block { text-align: left; }
-.final-tiles-gallery.caption-center .tile .caption-block { text-align: center; }
-.final-tiles-gallery.caption-right .tile .caption-block { text-align: right; }
+.final-tiles-gallery.caption-left .tile .caption-block, .final-tiles-gallery.caption-left .tile .caption-outside { text-align: left; }
+.final-tiles-gallery.caption-center .tile .caption-block, .final-tiles-gallery.caption-center .tile .caption-outside { text-align: center; }
+.final-tiles-gallery.caption-right .tile .caption-block, .final-tiles-gallery.caption-right .tile .caption-outside { text-align: right; }
 
 /* CAPTION TOP */
 .final-tiles-gallery.caption-top .tile .caption-block {
@@ -423,8 +430,6 @@
   -ms-transform: translateY(50px);
   transform: translateY(50px);
 }
-
-/* Premium Code Stripped by Freemius */
 
 /* EFFECT FRAME */
 .final-tiles-gallery.effect-frame.ftg-hover-enabled .tile:hover .tile-inner:before {  

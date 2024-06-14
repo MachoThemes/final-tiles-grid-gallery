@@ -4,6 +4,6 @@
 
 ?>
 <header id="top">
-<h1 class="hidden header center-on-small-only">Final Tiles Grid Gallery <small><?php print FTGVERSION ?> <?php print FTG_PLAN ?></small></h1>	
-<h4 class="center-on-small-only"><?php print $ftg_subtitle ?></h4>
+<h1 class="hidden header center-on-small-only">Final Tiles Grid Gallery <small><?php echo esc_html(FTGVERSION); ?> <?php echo esc_html(FTG_PLAN); ?></small></h1>
+<h4 class="center-on-small-only"><?php echo esc_html($ftg_subtitle); ?></h4>
 </header>

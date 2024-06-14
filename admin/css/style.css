@@ -84,7 +84,7 @@ td, th {
   margin-left: 10px;
 }
 .bulk.options > span:last-of-type:after {
-  
+
 }
 .bulk .options > span .btn {
   font-size: 11px;
@@ -157,10 +157,10 @@ td, th {
   display: inline-block;
   margin-right: 20px;
   font-size:14px;
-  color: #333;  
+  color: #333;
 }
-.import-export a:hover {  
-  color: #666;  
+.import-export a:hover {
+  color: #666;
   text-decoration: underline;
 }
 #shortcode-shortcut {
@@ -168,7 +168,7 @@ td, th {
   display: inline-block;
   width: 200px;
   background: #fafafa;
-  border:1px solid #999; 
+  border:1px solid #999;
   padding: 0px 10px;
   height: 20px;
   font-size:12px;
@@ -459,7 +459,7 @@ h2.ftg-subtitle {
 #edit-gallery .dynamic-table .del-filter i,
 #edit-gallery .dynamic-table table a i {
   font-size:12px;
-  line-height: 20px; 
+  line-height: 20px;
 }
 #edit-gallery b.range-preview {
   display: inline-block;
@@ -503,7 +503,7 @@ h2.ftg-subtitle {
   background: transparent;
 }
 .collapsible li .collapsible-header {
-  font-size: 1.2rem;  
+  font-size: 1.2rem;
 }
 .collapsible li .collapsible-header,
 .collapsible li .collapsible-header i {
@@ -599,6 +599,10 @@ h2.ftg-subtitle {
   color: #999;
   font-size: 18px;
 }
+.collapsible li div.help .ftg-code a .fa-eye{
+  color:#007cba;
+}
+
 .collapsible li div.help .ftg-code a:focus {
   box-shadow: none;
 }
@@ -680,7 +684,7 @@ h2.ftg-subtitle {
 }
 #images .actions .row.selection-row {
   margin-top:10px;
-} 
+}
 #images .images-bar select {
   max-width: 200px;
   display: inline-block;
@@ -883,11 +887,7 @@ h2.ftg-subtitle {
 #image-list .card a {
   color: #388E3C;
 }
-#image-list .card a.remove {
-  color: #f00;
-  right: 30px;
-}
-#image-list .card a {
+#image-list .card a.ftg-action-link {
   color: #333;
   position: absolute;
   z-index: 100;
@@ -900,6 +900,10 @@ h2.ftg-subtitle {
   text-align: center;
   border-radius: 3px;
   opacity: 0;
+}
+#image-list .card a.remove {
+  color: #f00;
+  right: 30px;
 }
 #image-list .card:hover a {
   opacity: 1;
@@ -1046,7 +1050,7 @@ background: -moz-linear-gradient(-45deg, #fcb900 1%, #f79621 100%); /* FF3.6-15 
 background: -webkit-linear-gradient(-45deg, #fcb900 1%,#f79621 100%); /* Chrome10-25,Safari5.1-6 */
 background: linear-gradient(135deg, #fcb900 1%,#f79621 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcb900', endColorstr='#f79621',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-padding: 10px;  
+padding: 10px;
 }
 .ftg-upsell a {
   color:#fff;
@@ -1058,7 +1062,7 @@ padding: 10px;
   background: yellow;
   font-size: 18px;
   font-weight: bold;
-  text-transform: uppercase;  
+  text-transform: uppercase;
   padding: 18px;
 }
 #upgrade-cta a {
@@ -1067,9 +1071,9 @@ padding: 10px;
 .modal h4 {
   font-size: 14px;
 }
-.browser-default[type="radio"]:not(:checked), 
+.browser-default[type="radio"]:not(:checked),
 .browser-default[type="radio"]:checked,
-.browser-default[type="checkbox"]:not(:checked), 
+.browser-default[type="checkbox"]:not(:checked),
 .browser-default[type="checkbox"]:checked {
   opacity: 1;
   position: static;
@@ -1099,6 +1103,7 @@ padding: 10px;
   float: right;
   margin-top: 7px;
 }
+
 
 /* Tabs tooltips */
 .ftg-tooltip {
@@ -1139,4 +1144,23 @@ padding: 10px;
 }
 .ftg-tooltip:hover .ftg-tooltip-content {
   display: block;
+}
+
+/* Copy shortcode design */
+.gallery-actions .copy-ftg-shortcode {
+  height: 40px;
+  line-height: 40px !important;
+}
+
+.copy-ftg-shortcode {
+  height:max-content;
+}
+
+/* Color picker fix */
+.field.js-update-shortcode .iris-border .iris-picker-inner {
+  min-width:250px;
+  min-height:250px;
+}
+.media-router button.media-menu-item {
+  height: fit-content;
 }
